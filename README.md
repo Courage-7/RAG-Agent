@@ -14,7 +14,6 @@ A Retrieval-Augmented Generation (RAG) system for document search, question answ
   - Built-in parsers for TXT and CSV files
 
 - Evaluation : Custom metrics including ROUGE, BERTScore, and semantic similarity
-
 - Configuration : YAML-based configuration with dotenv for environment variables
 
 - Visualization : Matplotlib and Pandas for metrics visualization
