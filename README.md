@@ -15,7 +15,6 @@ A Retrieval-Augmented Generation (RAG) system for document search, question answ
 
 - Evaluation : Custom metrics including ROUGE, BERTScore, and semantic similarity
 - Configuration : YAML-based configuration with dotenv for environment variables
-
 - Visualization : Matplotlib and Pandas for metrics visualization
 -
   ## Project Structure
