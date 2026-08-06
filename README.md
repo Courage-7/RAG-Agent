@@ -130,4 +130,3 @@ The system behavior can be customized by editing the config/config.yaml file:
 - Retrieval : Top-k value, similarity threshold, and reranking options
 - LLM : Model selection, temperature, and token limits
 - Evaluation : Metric selection and parameters
-
