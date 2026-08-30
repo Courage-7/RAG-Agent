@@ -1,0 +1,23 @@
+{
+  "include": [
+    "apps",
+    "packages",
+    "tests",
+    "evals"
+  ],
+  "extraPaths": [
+    "apps/api/src",
+    "apps/worker/src",
+    "packages/core/src"
+  ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": [
+        "apps/api/src",
+        "apps/worker/src",
+        "packages/core/src"
+      ]
+    }
+  ]
+}
