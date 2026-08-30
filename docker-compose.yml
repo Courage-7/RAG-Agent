@@ -1,0 +1,71 @@
+name: rag-agent
+
+services:
+  redis-broker:
+    image: redis:8.2.9-alpine3.22
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - ./infrastructure/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-broker-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile
+    command:
+      [
+        "uv",
+        "run",
+        "--frozen",
+        "--package",
+        "rag-api",
+        "uvicorn",
+        "rag_api.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+      ]
+    environment:
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      RAG_DATABASE_URL: ${RAG_DATABASE_URL:-postgresql://postgres:postgres@host.docker.internal:54322/postgres}
+      RAG_ENVIRONMENT: local
+      RAG_JSON_LOGS: "true"
+      RAG_REDIS_BROKER_URL: redis://redis-broker:6379/0
+      RAG_SUPABASE_URL: ${RAG_SUPABASE_URL:-http://host.docker.internal:54321}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      redis-broker:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile
+    command: ["uv", "run", "--frozen", "--package", "rag-worker", "dramatiq", "rag_worker.app"]
+    environment:
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      RAG_DATABASE_URL: ${RAG_DATABASE_URL:-postgresql://postgres:postgres@host.docker.internal:54322/postgres}
+      RAG_ENVIRONMENT: local
+      RAG_JSON_LOGS: "true"
+      RAG_REDIS_BROKER_URL: redis://redis-broker:6379/0
+      RAG_SUPABASE_URL: ${RAG_SUPABASE_URL:-http://host.docker.internal:54321}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      redis-broker:
+        condition: service_healthy
+
+volumes:
+  redis-broker-data:
