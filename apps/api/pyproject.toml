@@ -1,0 +1,14 @@
+[project]
+name = "rag-api"
+version = "0.1.0"
+description = "FastAPI request boundary for RAG Agent"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.141,<1",
+    "rag-core",
+    "uvicorn[standard]>=0.40,<1",
+]
+
+[build-system]
+requires = ["uv-build>=0.10.3,<0.13"]
+build-backend = "uv_build"
