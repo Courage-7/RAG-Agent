@@ -20,7 +20,7 @@ config/config.yaml
 
 # Data and storage
 # data/  <- Commented out to include data directory
-models/
+/models/
 *.pdf
 *.csv
 *.xls*
