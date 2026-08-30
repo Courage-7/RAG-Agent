@@ -7,6 +7,7 @@ __pycache__/
 *.py.orig
 *.pyc
 venv/
+.venv/
 .python-version
 
 # Environment variables
@@ -49,6 +50,8 @@ logs/
 .coverage
 htmlcov/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # OS generated
 Thumbs.db
@@ -71,3 +74,7 @@ jupyter_notebook_config.py
 # Vector stores
 vector_store/
 *.index
+
+# Required root project metadata; earlier broad patterns would hide these files.
+!.dockerignore
+!.python-version
