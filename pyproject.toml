@@ -53,3 +53,12 @@ strict_equality = true
 warn_redundant_casts = true
 warn_return_any = true
 warn_unused_ignores = true
+
+[tool.pyright]
+include = ["apps", "packages", "tests", "evals"]
+extraPaths = [
+    "apps/api/src",
+    "apps/worker/src",
+    "packages/core/src",
+]
+
