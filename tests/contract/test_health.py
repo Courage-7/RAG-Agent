@@ -48,3 +48,4 @@ async def test_readiness_accepts_complete_foundation_configuration() -> None:
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
