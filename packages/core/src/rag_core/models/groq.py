@@ -5,7 +5,7 @@ from typing import Any, Protocol, cast
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_groq import ChatGroq
-from pydantic import BaseModel, SecretStr
+from pydantic import SecretStr
 
 from rag_core.errors import ModelConfigurationError, ModelProviderError
 from rag_core.models.contracts import (
