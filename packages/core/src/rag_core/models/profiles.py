@@ -53,4 +53,3 @@ def default_groq_profiles(
         ),
     )
     return {profile.alias.value: profile for profile in profiles}
-
