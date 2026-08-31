@@ -3,4 +3,3 @@
 from rag_core.models.profiles import ModelProfile, ModelPurpose
 
 __all__ = ["ModelProfile", "ModelPurpose"]
-
