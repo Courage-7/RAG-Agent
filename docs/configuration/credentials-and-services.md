@@ -1,7 +1,7 @@
 # Credentials and service configuration
 Updated: 2026-08-29 
 
-This is the single inventory of values that the project may need from you. It intentionally contains names and setup links only—never paste a real key, password, token, connection string, or OAuth client secret into this document, a notebook, source code, an issue, or chat history.
+This is the single inventory of values that the project may need from you. It intentionally contains names and setup links only, never paste a real key, password, token, connection string, or OAuth client secret into this document, a notebook, source code, an issue, or chat history.
 
 ## Where values belong
 
