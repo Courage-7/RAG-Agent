@@ -86,7 +86,7 @@ These arrive in the bounded-agent milestone.
 
 Composio sessions must use the application's stable internal user UUID. Store returned session, connected-account, and auth-config identifiers in PostgreSQL; never store provider access or refresh tokens. Start with read-only Calendar/web actions. Every write remains subject to the application's approval and idempotency contracts, even though Composio executes it. See the [Composio LangChain/LangGraph provider guide](https://docs.composio.dev/docs/providers/langchain) and [auth-config reference](https://docs.composio.dev/reference/api-reference/auth-configs).
 
-## Web search provider — selection pending
+## Web search provider : selection pending
 
 Choose one provider after relevance, freshness, citation, latency, privacy, and cost evaluation. Do not provide both keys unless both adapters are intentionally implemented.
 
