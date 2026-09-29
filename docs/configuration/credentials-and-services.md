@@ -33,9 +33,9 @@ These variables are already read by the foundation code.
 | Variable | Secret? | Required | Purpose/source |
 | --- | --- | --- | --- |
 | `GROQ_API_KEY` | Yes, server-only | Live inference | Create a project-specific key in the [Groq API Keys console](https://console.groq.com/keys). Never expose it in browser code. |
-| `RAG_GROQ_FAST_MODEL` | No | Yes | Strict structured routing/grading model; current candidate is `openai/gpt-oss-20b`. |
-| `RAG_GROQ_QUALITY_MODEL` | No | Yes | High-quality synthesis model; current candidate is `openai/gpt-oss-120b`. |
-| `RAG_GROQ_AGENT_MODEL` | No | Yes | Bounded tool-calling model; current candidate is `openai/gpt-oss-120b`. |
+| `RAG_GROQ_FAST_MODEL` | No | Yes | Strict structured routing/grading model; production default is `llama-3.1-8b-instant`. |
+| `RAG_GROQ_QUALITY_MODEL` | No | Yes | High-quality synthesis model; production default is `llama-3.3-70b-versatile`. |
+| `RAG_GROQ_AGENT_MODEL` | No | Yes | Bounded tool-calling model; production default is `llama-3.3-70b-versatile`. |
 
 The model mappings are candidates until the evaluation suite records schema validity, quality, latency, token usage, and rate-limit behavior. Create separate Groq projects/keys and spending limits for development, staging, and production. Review [Groq security onboarding](https://console.groq.com/docs/production-readiness/security-onboarding) and [project limits](https://console.groq.com/docs/projects) before production.
 
