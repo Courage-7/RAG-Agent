@@ -37,7 +37,7 @@ class FakeChatModel:
             usage_metadata={"input_tokens": 12, "output_tokens": 3, "total_tokens": 15},
             response_metadata={
                 "finish_reason": "stop",
-                "model_name": "openai/gpt-oss-120b",
+                "model_name": "llama-3.3-70b-versatile",
                 "x_groq": {"id": "req_test"},
             },
         )
@@ -75,9 +75,9 @@ def make_request(alias: str) -> ModelRequest:
 
 def make_provider(fake_model: FakeChatModel) -> GroqChatModelProvider:
     profiles = default_groq_profiles(
-        fast_model="openai/gpt-oss-20b",
-        quality_model="openai/gpt-oss-120b",
-        agent_model="openai/gpt-oss-120b",
+        fast_model="llama-3.1-8b-instant",
+        quality_model="llama-3.3-70b-versatile",
+        agent_model="llama-3.3-70b-versatile",
     )
     return GroqChatModelProvider(
         api_key=SecretStr("test-key"),
