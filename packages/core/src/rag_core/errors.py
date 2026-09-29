@@ -8,6 +8,11 @@ class ErrorCode(StrEnum):
     MODEL_CONFIGURATION_ERROR = "model_configuration_error"
     MODEL_PROVIDER_ERROR = "model_provider_error"
     QUEUE_DISPATCH_ERROR = "queue_dispatch_error"
+    RETRIEVAL_EXECUTION_ERROR = "retrieval_execution_error"
+    INGESTION_STORAGE_ERROR = "ingestion_storage_error"
+    DOCUMENT_PARSING_ERROR = "document_parsing_error"
+    AUTHENTICATION_ERROR = "authentication_error"
+    AUTHORIZATION_ERROR = "authorization_error"
 
 
 class RagError(Exception):
@@ -49,3 +54,28 @@ class ModelProviderError(RagError):
 class QueueDispatchError(RagError):
     def __init__(self, message: str) -> None:
         super().__init__(ErrorCode.QUEUE_DISPATCH_ERROR, message, retryable=True)
+
+
+class RetrievalExecutionError(RagError):
+    def __init__(self, message: str, *, retryable: bool = False) -> None:
+        super().__init__(ErrorCode.RETRIEVAL_EXECUTION_ERROR, message, retryable=retryable)
+
+
+class IngestionStorageError(RagError):
+    def __init__(self, message: str, *, retryable: bool = False) -> None:
+        super().__init__(ErrorCode.INGESTION_STORAGE_ERROR, message, retryable=retryable)
+
+
+class DocumentParsingError(RagError):
+    def __init__(self, message: str) -> None:
+        super().__init__(ErrorCode.DOCUMENT_PARSING_ERROR, message, retryable=False)
+
+
+class AuthenticationError(RagError):
+    def __init__(self, message: str) -> None:
+        super().__init__(ErrorCode.AUTHENTICATION_ERROR, message, retryable=False)
+
+
+class AuthorizationError(RagError):
+    def __init__(self, message: str) -> None:
+        super().__init__(ErrorCode.AUTHORIZATION_ERROR, message, retryable=False)
