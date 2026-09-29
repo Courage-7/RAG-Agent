@@ -48,3 +48,22 @@ async def test_readiness_accepts_complete_foundation_configuration() -> None:
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+@pytest.mark.asyncio
+async def test_readiness_fails_when_active_probes_detect_offline_services() -> None:
+    settings = AppSettings(
+        _env_file=None,  # type: ignore[call-arg]  # Pydantic Settings runtime option.
+        groq_api_key=SecretStr("test-key"),
+        active_readiness_probes=True,
+        database_url="postgresql://invalid:invalid@127.0.0.1:1/nonexistent",
+        redis_broker_url="redis://127.0.0.1:1/0",
+    )
+
+    response = await request(create_app(settings), "/health/ready")
+
+    assert response.status_code == 503
+    payload = response.json()
+    assert payload["status"] == "not_ready"
+    assert payload["checks"]["database_connected"] is False
+    assert payload["checks"]["redis_connected"] is False

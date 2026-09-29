@@ -5,6 +5,7 @@ description = "FastAPI request boundary for RAG Agent"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.141,<1",
+    "python-multipart>=0.0.32",
     "rag-core",
     "uvicorn[standard]>=0.40,<1",
 ]
