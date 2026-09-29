@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAG-Agent Platform | Enterprise Retrieval & Agentic AI</title>
+  <!-- Tailwind CSS CDN with typography & forms plugins -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            surface: {
+              900: '#09090b',
+              850: '#121215',
+              800: '#18181b',
+              750: '#202024',
+              700: '#27272a',
+            }
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #09090b; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+    .glass-panel {
+      background: rgba(24, 24, 27, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(63, 63, 70, 0.4);
+    }
+    .cursor-blink::after {
+      content: '▋';
+      margin-left: 2px;
+      vertical-align: baseline;
+      animation: blink 1s infinite;
+      color: #818cf8;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  </style>
+</head>
+<body class="bg-surface-900 text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-brand-500 selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-surface-700 bg-surface-850 px-6 py-3.5 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center space-x-3">
+      <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-brand-600 to-violet-500 flex items-center justify-center shadow-lg shadow-brand-500/20">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="font-bold text-base tracking-tight text-white">RAG-Agent</h1>
+          <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-brand-500/20 text-brand-400 border border-brand-500/30">v0.1.0</span>
+          <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Production Grade</span>
+        </div>
+        <p class="text-xs text-zinc-400">PostgreSQL pgvector • Reciprocal Rank Fusion • FlashRank Reranker • LangGraph</p>
+      </div>
+    </div>
+
+    <!-- Health Telemetry Pills -->
+    <div class="flex items-center space-x-3 text-xs">
+      <div id="status-db" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-surface-750 border border-surface-700">
+        <span class="h-2 w-2 rounded-full bg-zinc-500 animate-pulse" id="dot-db"></span>
+        <span class="text-zinc-400">Postgres</span>
+      </div>
+      <div id="status-redis" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-surface-750 border border-surface-700">
+        <span class="h-2 w-2 rounded-full bg-zinc-500 animate-pulse" id="dot-redis"></span>
+        <span class="text-zinc-400">Redis</span>
+      </div>
+      <div id="status-groq" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-surface-750 border border-surface-700">
+        <span class="h-2 w-2 rounded-full bg-zinc-500 animate-pulse" id="dot-groq"></span>
+        <span class="text-zinc-400">Groq LPU</span>
+      </div>
+      <button onclick="toggleDebug()" class="px-2.5 py-1 text-xs text-zinc-400 hover:text-zinc-200 border border-surface-700 hover:border-surface-600 rounded bg-surface-800 transition">
+        Debugger
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Body Layout -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- Left Sidebar: Ingestion & Settings -->
+    <aside class="w-96 border-r border-surface-700 bg-surface-850 p-5 flex flex-col space-y-5 overflow-y-auto">
+      
+      <!-- Tenant Configuration -->
+      <div class="space-y-3">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center justify-between">
+          <span>Tenant Context</span>
+          <span class="text-[10px] text-zinc-500 font-mono">Row-Level Security</span>
+        </h2>
+        <div class="space-y-2">
+          <div>
+            <label class="block text-[11px] text-zinc-400 mb-1 font-mono">Workspace ID</label>
+            <input type="text" id="workspace_id" value="00000000-0000-0000-0000-000000000001" 
+              class="w-full text-xs font-mono bg-surface-900 border border-surface-700 rounded px-2.5 py-1.5 text-zinc-300 focus:outline-none focus:border-brand-500 transition">
+          </div>
+          <div>
+            <label class="block text-[11px] text-zinc-400 mb-1 font-mono">Knowledge Base ID</label>
+            <input type="text" id="kb_id" value="00000000-0000-0000-0000-000000000002" 
+              class="w-full text-xs font-mono bg-surface-900 border border-surface-700 rounded px-2.5 py-1.5 text-zinc-300 focus:outline-none focus:border-brand-500 transition">
+          </div>
+          <div>
+            <label class="block text-[11px] text-zinc-400 mb-1 font-mono">User ID</label>
+            <input type="text" id="user_id" value="00000000-0000-0000-0000-000000000003" 
+              class="w-full text-xs font-mono bg-surface-900 border border-surface-700 rounded px-2.5 py-1.5 text-zinc-300 focus:outline-none focus:border-brand-500 transition">
+          </div>
+        </div>
+      </div>
+
+      <hr class="border-surface-700">
+
+      <!-- Engine Execution Mode -->
+      <div class="space-y-3">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Execution Engine</h2>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="mode-agent-btn" onclick="setMode('agent')" 
+            class="flex flex-col items-start p-2.5 rounded-lg border border-brand-500 bg-brand-500/10 text-left transition">
+            <span class="text-xs font-semibold text-brand-300 flex items-center space-x-1">
+              <span>🤖 Adaptive Agent</span>
+            </span>
+            <span class="text-[10px] text-zinc-400 mt-1">LangGraph Router + Memory + Web Fallback</span>
+          </button>
+          <button id="mode-rag-btn" onclick="setMode('rag')" 
+            class="flex flex-col items-start p-2.5 rounded-lg border border-surface-700 bg-surface-800 text-left transition hover:border-surface-600">
+            <span class="text-xs font-semibold text-zinc-300 flex items-center space-x-1">
+              <span>⚡ Hybrid RAG</span>
+            </span>
+            <span class="text-[10px] text-zinc-400 mt-1">pgvector HNSW + FlashRank Reranker</span>
+          </button>
+        </div>
+      </div>
+
+      <hr class="border-surface-700">
+
+      <!-- Document Ingestion Center -->
+      <div class="space-y-3 flex-1">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center justify-between">
+          <span>Ingest Knowledge</span>
+          <span class="text-[10px] text-zinc-500">PDF, MD, TXT</span>
+        </h2>
+
+        <!-- File Upload Form -->
+        <div id="dropzone" class="border-2 border-dashed border-surface-700 hover:border-brand-500/60 rounded-xl p-4 text-center cursor-pointer transition bg-surface-900/50">
+          <input type="file" id="file-input" class="hidden" accept=".pdf,.md,.txt,.json">
+          <svg class="w-8 h-8 text-zinc-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          <p class="text-xs text-zinc-300 font-medium">Click or drag document here</p>
+          <p class="text-[10px] text-zinc-500 mt-1">Extracts text via PyPDF, chunks & computes ONNX vectors</p>
+          <div id="selected-file-info" class="hidden mt-2 p-2 rounded bg-surface-800 text-left text-xs font-mono text-brand-300 truncate"></div>
+        </div>
+
+        <button id="upload-btn" onclick="uploadDocument()" disabled
+          class="w-full py-2 px-3 rounded-lg text-xs font-semibold bg-brand-600 hover:bg-brand-500 disabled:bg-surface-700 disabled:text-zinc-500 disabled:cursor-not-allowed transition text-white shadow-md">
+          Upload & Index via Outbox
+        </button>
+
+        <!-- Ingestion Status Box -->
+        <div id="ingest-status-box" class="hidden p-3 rounded-lg bg-surface-900 border border-surface-700 text-xs space-y-1.5 font-mono">
+          <div class="flex items-center justify-between">
+            <span class="text-zinc-400">Status:</span>
+            <span id="ingest-status-badge" class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300">QUEUED</span>
+          </div>
+          <div class="text-zinc-400 text-[11px] truncate">Job: <span id="ingest-job-id" class="text-zinc-200"></span></div>
+          <div class="text-zinc-400 text-[11px] truncate">Version: <span id="ingest-ver-id" class="text-zinc-200"></span></div>
+        </div>
+
+        <!-- Quick Text Snippet Ingestion -->
+        <details class="text-xs text-zinc-400 cursor-pointer">
+          <summary class="hover:text-zinc-200 select-none py-1">Paste Raw Text Snippet</summary>
+          <div class="pt-2 space-y-2">
+            <input type="text" id="raw-title" placeholder="Document Title (e.g. System Arch)" 
+              class="w-full text-xs bg-surface-900 border border-surface-700 rounded px-2.5 py-1.5 text-zinc-200 focus:outline-none focus:border-brand-500">
+            <textarea id="raw-content" rows="4" placeholder="Paste markdown or raw text..." 
+              class="w-full text-xs bg-surface-900 border border-surface-700 rounded px-2.5 py-1.5 text-zinc-200 focus:outline-none focus:border-brand-500"></textarea>
+            <button onclick="ingestRawText()" 
+              class="w-full py-1.5 rounded text-xs bg-surface-700 hover:bg-surface-650 text-zinc-200 transition">
+              Ingest Snippet
+            </button>
+          </div>
+        </details>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="pt-3 border-t border-surface-700 text-[11px] text-zinc-500 flex items-center justify-between">
+        <span>Session: <span id="session-id-display" class="font-mono text-zinc-400">thread-default</span></span>
+        <button onclick="resetSession()" class="hover:text-zinc-300 underline">Reset</button>
+      </div>
+    </aside>
+
+    <!-- Center Workspace: Chat & Evaluation Display -->
+    <main class="flex-1 flex flex-col bg-surface-900 overflow-hidden relative">
+
+      <!-- Messages Stream Feed -->
+      <div id="messages-container" class="flex-1 overflow-y-auto p-6 space-y-6 max-w-4xl w-full mx-auto">
+        
+        <!-- Welcome Hero State -->
+        <div id="empty-state" class="text-center py-12 space-y-4">
+          <div class="h-14 w-14 rounded-2xl bg-surface-800 border border-surface-700 mx-auto flex items-center justify-center text-2xl shadow-xl">
+            ⚡
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white tracking-tight">Enterprise Production RAG & Adaptive Agent</h2>
+            <p class="text-xs text-zinc-400 max-w-md mx-auto mt-1">
+              Zero-hallucination grounded retrieval, Reciprocal Rank Fusion, local FastEmbed ONNX vectors, and stateful LangGraph agentic reasoning.
+            </p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-w-lg mx-auto text-left pt-4">
+            <button onclick="setQuery('Tell me about PostgreSQL pgvector and HNSW indexing')" 
+              class="p-3 rounded-lg border border-surface-750 bg-surface-850 hover:border-brand-500/50 hover:bg-surface-800 transition text-xs text-zinc-300">
+              <span class="font-semibold text-brand-300">📖 Architecture</span><br>
+              "Tell me about PostgreSQL pgvector and HNSW indexing"
+            </button>
+            <button onclick="setQuery('Why do production RAG systems degrade over time?')" 
+              class="p-3 rounded-lg border border-surface-750 bg-surface-850 hover:border-brand-500/50 hover:bg-surface-800 transition text-xs text-zinc-300">
+              <span class="font-semibold text-brand-300">🔬 RAG Research</span><br>
+              "Why do production RAG systems degrade over time?"
+            </button>
+            <button onclick="setQuery('How does the Transactional Outbox pattern prevent dual-write data loss?')" 
+              class="p-3 rounded-lg border border-surface-750 bg-surface-850 hover:border-brand-500/50 hover:bg-surface-800 transition text-xs text-zinc-300">
+              <span class="font-semibold text-brand-300">⚙️ Outbox Pattern</span><br>
+              "How does Transactional Outbox prevent data loss?"
+            </button>
+            <button onclick="setQuery('Hello! Who are you and how are you built?')" 
+              class="p-3 rounded-lg border border-surface-750 bg-surface-850 hover:border-brand-500/50 hover:bg-surface-800 transition text-xs text-zinc-300">
+              <span class="font-semibold text-brand-300">🤖 Routing Test</span><br>
+              "Hello! Who are you and how are you built?"
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Input Bar (Sticky at bottom) -->
+      <div class="p-4 bg-surface-850/80 backdrop-blur border-t border-surface-700 sticky bottom-0 z-20">
+        <div class="max-w-4xl mx-auto flex space-x-3 items-end">
+          <div class="flex-1 relative">
+            <textarea id="user-input" rows="2" placeholder="Ask a question or explore the indexed knowledge..."
+              class="w-full bg-surface-900 border border-surface-700 rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500 resize-none transition shadow-inner font-sans"></textarea>
+            <div class="absolute right-3 bottom-2 text-[10px] text-zinc-500 font-mono hidden md:block">
+              Shift+Enter for newline
+            </div>
+          </div>
+          <button id="send-btn" onclick="sendMessage()" 
+            class="px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm transition shadow-lg shadow-brand-600/30 flex items-center space-x-2 h-[48px]">
+            <span>Send</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Collapsible Debug / Event Stream Monitor Drawer -->
+    <div id="debug-drawer" class="hidden w-80 border-l border-surface-700 bg-surface-850 flex flex-col text-xs font-mono">
+      <div class="p-3 border-b border-surface-700 flex items-center justify-between bg-surface-800">
+        <span class="font-semibold text-zinc-300">SSE Telemetry Stream</span>
+        <button onclick="clearDebug()" class="text-zinc-500 hover:text-zinc-300">Clear</button>
+      </div>
+      <div id="debug-log" class="flex-1 overflow-y-auto p-3 space-y-2 text-[11px] text-zinc-400">
+        <div class="text-zinc-600 italic">Listening for SSE events...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Client JavaScript Logic -->
+  <script>
+    let currentMode = 'agent'; // 'agent' or 'rag'
+    let currentThreadId = 'session-' + Math.random().toString(36).substring(2, 9);
+    let chatHistory = [];
+    document.getElementById('session-id-display').innerText = currentThreadId;
+
+    function setMode(mode) {
+      currentMode = mode;
+      const agentBtn = document.getElementById('mode-agent-btn');
+      const ragBtn = document.getElementById('mode-rag-btn');
+      if (mode === 'agent') {
+        agentBtn.className = 'flex flex-col items-start p-2.5 rounded-lg border border-brand-500 bg-brand-500/10 text-left transition';
+        ragBtn.className = 'flex flex-col items-start p-2.5 rounded-lg border border-surface-700 bg-surface-800 text-left transition hover:border-surface-600';
+      } else {
+        ragBtn.className = 'flex flex-col items-start p-2.5 rounded-lg border border-brand-500 bg-brand-500/10 text-left transition';
+        agentBtn.className = 'flex flex-col items-start p-2.5 rounded-lg border border-surface-700 bg-surface-800 text-left transition hover:border-surface-600';
+      }
+      logDebug(`Switched execution mode to: ${mode}`);
+    }
+
+    function resetSession() {
+      currentThreadId = 'session-' + Math.random().toString(36).substring(2, 9);
+      chatHistory = [];
+      document.getElementById('session-id-display').innerText = currentThreadId;
+      logDebug(`Started new session: ${currentThreadId}`);
+    }
+
+    function setQuery(text) {
+      document.getElementById('user-input').value = text;
+      document.getElementById('user-input').focus();
+    }
+
+    // Health Checks
+    async function checkHealth() {
+      try {
+        const res = await fetch('/health/ready');
+        const data = await res.json();
+        const checks = data.checks || {};
+        
+        updatePill('db', checks.database_connected !== false && checks.database_configured);
+        updatePill('redis', checks.redis_connected !== false && checks.redis_configured);
+        updatePill('groq', checks.groq_configured);
+      } catch (err) {
+        updatePill('db', false);
+        updatePill('redis', false);
+        updatePill('groq', false);
+      }
+    }
+
+    function updatePill(id, isHealthy) {
+      const dot = document.getElementById(`dot-${id}`);
+      if (!dot) return;
+      if (isHealthy) {
+        dot.className = 'h-2 w-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50';
+      } else {
+        dot.className = 'h-2 w-2 rounded-full bg-rose-500';
+      }
+    }
+
+    setInterval(checkHealth, 8000);
+    checkHealth();
+
+    // Dropzone & File Upload Logic
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const fileInfo = document.getElementById('selected-file-info');
+    let selectedFile = null;
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-brand-500'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('border-brand-500'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-brand-500');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) handleFile(fileInput.files[0]);
+    });
+
+    function handleFile(file) {
+      selectedFile = file;
+      fileInfo.classList.remove('hidden');
+      fileInfo.innerText = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+      uploadBtn.disabled = false;
+    }
+
+    async function uploadDocument() {
+      if (!selectedFile) return;
+      const workspaceId = document.getElementById('workspace_id').value;
+      const kbId = document.getElementById('kb_id').value;
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('workspace_id', workspaceId);
+      formData.append('knowledge_base_id', kbId);
+
+      uploadBtn.disabled = true;
+      uploadBtn.innerText = 'Parsing & Ingesting...';
+
+      try {
+        const res = await fetch('/v1/documents/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.detail || 'Upload failed');
+        }
+        const data = await res.json();
+        document.getElementById('ingest-status-box').classList.remove('hidden');
+        document.getElementById('ingest-status-badge').innerText = data.status.toUpperCase();
+        document.getElementById('ingest-job-id').innerText = data.job_id;
+        document.getElementById('ingest-ver-id').innerText = data.document_version_id;
+        logDebug(`Document uploaded! Job ID: ${data.job_id}`);
+        uploadBtn.innerText = 'Uploaded Successfully!';
+        setTimeout(() => {
+          uploadBtn.innerText = 'Upload & Index via Outbox';
+          uploadBtn.disabled = false;
+        }, 3000);
+      } catch (err) {
+        alert('Upload Error: ' + err.message);
+        uploadBtn.innerText = 'Upload Failed';
+        uploadBtn.disabled = false;
+      }
+    }
+
+    async function ingestRawText() {
+      const title = document.getElementById('raw-title').value.trim();
+      const content = document.getElementById('raw-content').value.trim();
+      const workspaceId = document.getElementById('workspace_id').value;
+      const kbId = document.getElementById('kb_id').value;
+
+      if (!title || !content) {
+        alert('Please provide title and content');
+        return;
+      }
+
+      try {
+        const res = await fetch('/v1/documents', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            workspace_id: workspaceId,
+            knowledge_base_id: kbId,
+            title: title,
+            content: content
+          })
+        });
+        const data = await res.json();
+        alert(`Document queued! Job ID: ${data.job_id}`);
+        document.getElementById('raw-title').value = '';
+        document.getElementById('raw-content').value = '';
+      } catch (err) {
+        alert('Ingest Error: ' + err.message);
+      }
+    }
+
+    // Chat Execution & SSE Streaming
+    const messagesContainer = document.getElementById('messages-container');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      const emptyState = document.getElementById('empty-state');
+      if (emptyState) emptyState.remove();
+
+      // Render User Bubble
+      renderUserMessage(text);
+      userInput.value = '';
+      sendBtn.disabled = true;
+
+      // Render Assistant Skeleton
+      const botMsgDiv = renderAssistantSkeleton();
+
+      const workspaceId = document.getElementById('workspace_id').value;
+      const kbId = document.getElementById('kb_id').value;
+      const userId = document.getElementById('user_id').value;
+
+      if (currentMode === 'agent') {
+        await executeAgentStream(text, workspaceId, kbId, userId, botMsgDiv);
+      } else {
+        await executeRagStream(text, workspaceId, kbId, userId, botMsgDiv);
+      }
+
+      sendBtn.disabled = false;
+    }
+
+    function renderUserMessage(text) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'flex justify-end';
+      msgDiv.innerHTML = `
+        <div class="max-w-2xl bg-surface-750 border border-surface-700 rounded-2xl rounded-tr-sm px-4 py-3 text-sm text-zinc-100 shadow-sm">
+          ${escapeHtml(text)}
+        </div>
+      `;
+      messagesContainer.appendChild(msgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function renderAssistantSkeleton() {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'flex justify-start';
+      msgDiv.innerHTML = `
+        <div class="max-w-3xl w-full glass-panel rounded-2xl rounded-tl-sm p-4 space-y-3 shadow-lg">
+          <!-- Step Trace Chips Container -->
+          <div class="step-trace flex flex-wrap gap-2 text-[11px] font-mono">
+            <span class="px-2 py-0.5 rounded bg-surface-700 text-zinc-400 flex items-center space-x-1.5 animate-pulse">
+              <span class="h-1.5 w-1.5 rounded-full bg-brand-400"></span>
+              <span>Thinking & Routing...</span>
+            </span>
+          </div>
+
+          <!-- Answer Text Content -->
+          <div class="answer-content text-sm text-zinc-200 leading-relaxed font-sans cursor-blink"></div>
+
+          <!-- Citations Tray -->
+          <div class="citations-container hidden pt-3 border-t border-surface-700/60 space-y-2">
+            <div class="text-[11px] font-semibold uppercase text-zinc-400 font-mono">Verified Citations</div>
+            <div class="citations-list grid grid-cols-1 md:grid-cols-2 gap-2 text-xs"></div>
+          </div>
+        </div>
+      `;
+      messagesContainer.appendChild(msgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      return msgDiv;
+    }
+
+    async function executeAgentStream(query, workspaceId, kbId, userId, botDiv) {
+      const traceContainer = botDiv.querySelector('.step-trace');
+      const answerContent = botDiv.querySelector('.answer-content');
+      const citationsContainer = botDiv.querySelector('.citations-container');
+      const citationsList = botDiv.querySelector('.citations-list');
+
+      try {
+        const response = await fetch('/v1/agent/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: query,
+            workspace_id: workspaceId,
+            user_id: userId,
+            knowledge_base_ids: [kbId],
+            chat_history: chatHistory,
+            thread_id: currentThreadId
+          })
+        });
+
+        if (!response.ok) throw new Error('Agent endpoint error: ' + response.statusText);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split('\n\n');
+          buffer = parts.pop(); // Keep trailing incomplete segment
+
+          for (const block of parts) {
+            if (!block.trim()) continue;
+            const lines = block.split('\n');
+            let event = 'message';
+            let dataStr = '{}';
+            for (const line of lines) {
+              if (line.startsWith('event:')) event = line.substring(6).trim();
+              if (line.startsWith('data:')) dataStr = line.substring(5).trim();
+            }
+
+            try {
+              const data = JSON.parse(dataStr);
+              logDebug(`Agent SSE [${event}]: ${JSON.stringify(data).substring(0, 80)}...`);
+              handleAgentEvent(event, data, traceContainer, answerContent, citationsContainer, citationsList);
+            } catch (e) {
+              console.error('SSE parse error:', e, dataStr);
+            }
+          }
+        }
+
+        answerContent.classList.remove('cursor-blink');
+        chatHistory.push({ role: 'user', content: query });
+        chatHistory.push({ role: 'assistant', content: answerContent.innerText });
+
+      } catch (err) {
+        answerContent.classList.remove('cursor-blink');
+        answerContent.innerHTML = `<span class="text-rose-400">Error: ${escapeHtml(err.message)}</span>`;
+      }
+    }
+
+    function handleAgentEvent(event, data, traceContainer, answerContent, citationsContainer, citationsList) {
+      if (event === 'routing') {
+        const routeIcons = { direct: '⚡ Direct', retrieve: '📚 Knowledge Base', web_search: '🌐 Web Search' };
+        traceContainer.innerHTML = `
+          <span class="px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30">
+            Route: ${routeIcons[data.route] || data.route}
+          </span>
+        `;
+        if (data.effective_query && data.effective_query !== data.query) {
+          traceContainer.innerHTML += `
+            <span class="px-2 py-0.5 rounded bg-surface-700 text-zinc-300" title="${escapeHtml(data.effective_query)}">
+              🔍 Condensed Query
+            </span>
+          `;
+        }
+      } else if (event === 'retrieval') {
+        traceContainer.innerHTML += `
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            ✓ ${data.count} Chunks Retrieved & Reranked
+          </span>
+        `;
+      } else if (event === 'web_search') {
+        traceContainer.innerHTML += `
+          <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">
+            🌐 Web Results Found
+          </span>
+        `;
+      } else if (event === 'answer') {
+        answerContent.innerText = data.answer || '';
+        if (data.citations && data.citations.length) {
+          citationsContainer.classList.remove('hidden');
+          citationsList.innerHTML = '';
+          data.citations.forEach(c => {
+            const card = document.createElement('div');
+            card.className = 'p-2.5 rounded bg-surface-800 border border-surface-700 text-zinc-300';
+            card.innerHTML = `
+              <div class="flex items-center justify-between text-[11px] font-mono text-brand-400 mb-1">
+                <span>[${c.ordinal}] Source Chunk</span>
+                <span class="text-zinc-500 truncate w-24">${c.chunk_id}</span>
+              </div>
+              <p class="text-zinc-400 text-[11px] truncate">${escapeHtml(c.source_label || 'Knowledge Excerpt')}</p>
+            `;
+            citationsList.appendChild(card);
+          });
+        }
+      }
+    }
+
+    async function executeRagStream(query, workspaceId, kbId, userId, botDiv) {
+      const traceContainer = botDiv.querySelector('.step-trace');
+      const answerContent = botDiv.querySelector('.answer-content');
+      const citationsContainer = botDiv.querySelector('.citations-container');
+      const citationsList = botDiv.querySelector('.citations-list');
+
+      traceContainer.innerHTML = `
+        <span class="px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30">
+          ⚡ Hybrid RRF + FlashRank
+        </span>
+      `;
+
+      try {
+        const response = await fetch('/v1/chat/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: query,
+            workspace_id: workspaceId,
+            user_id: userId,
+            knowledge_base_ids: [kbId],
+            chat_history: chatHistory
+          })
+        });
+
+        if (!response.ok) throw new Error('RAG Stream endpoint error: ' + response.statusText);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split('\n\n');
+          buffer = parts.pop();
+
+          for (const block of parts) {
+            if (!block.trim()) continue;
+            const lines = block.split('\n');
+            let event = 'message';
+            let dataStr = '{}';
+            for (const line of lines) {
+              if (line.startsWith('event:')) event = line.substring(6).trim();
+              if (line.startsWith('data:')) dataStr = line.substring(5).trim();
+            }
+
+            try {
+              const data = JSON.parse(dataStr);
+              logDebug(`RAG SSE [${event}]: ${JSON.stringify(data).substring(0, 80)}...`);
+
+              if (event === 'token') {
+                answerContent.innerText += data.token || '';
+              } else if (event === 'citations' && data.citations) {
+                citationsContainer.classList.remove('hidden');
+                citationsList.innerHTML = '';
+                data.citations.forEach(c => {
+                  const card = document.createElement('div');
+                  card.className = 'p-2.5 rounded bg-surface-800 border border-surface-700 text-zinc-300';
+                  card.innerHTML = `
+                    <div class="flex items-center justify-between text-[11px] font-mono text-brand-400 mb-1">
+                      <span>[${c.ordinal}] Source Passage</span>
+                      <span class="text-zinc-500 truncate w-24">${c.chunk_id}</span>
+                    </div>
+                    <p class="text-zinc-400 text-[11px] truncate">${escapeHtml(c.text || '')}</p>
+                  `;
+                  citationsList.appendChild(card);
+                });
+              }
+            } catch (e) {
+              console.error('SSE parse error:', e);
+            }
+          }
+        }
+
+        answerContent.classList.remove('cursor-blink');
+        chatHistory.push({ role: 'user', content: query });
+        chatHistory.push({ role: 'assistant', content: answerContent.innerText });
+
+      } catch (err) {
+        answerContent.classList.remove('cursor-blink');
+        answerContent.innerHTML = `<span class="text-rose-400">Error: ${escapeHtml(err.message)}</span>`;
+      }
+    }
+
+    // Debug Drawer Helpers
+    function toggleDebug() {
+      const drawer = document.getElementById('debug-drawer');
+      drawer.classList.toggle('hidden');
+    }
+
+    function logDebug(msg) {
+      const log = document.getElementById('debug-log');
+      const time = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.className = 'text-zinc-400 border-b border-surface-800 pb-1';
+      div.innerHTML = `<span class="text-zinc-600">[${time}]</span> ${escapeHtml(msg)}`;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function clearDebug() {
+      document.getElementById('debug-log').innerHTML = '';
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
