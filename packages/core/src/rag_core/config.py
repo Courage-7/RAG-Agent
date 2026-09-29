@@ -21,14 +21,15 @@ class AppSettings(BaseSettings):
     environment: Literal["local", "test", "staging", "production"] = "local"
     log_level: str = "INFO"
     json_logs: bool = False
+    active_readiness_probes: bool = False
 
     groq_api_key: SecretStr | None = Field(
         default=None,
         validation_alias=AliasChoices("GROQ_API_KEY", "RAG_GROQ_API_KEY"),
     )
-    groq_fast_model: str = "openai/gpt-oss-20b"
-    groq_quality_model: str = "openai/gpt-oss-120b"
-    groq_agent_model: str = "openai/gpt-oss-120b"
+    groq_fast_model: str = "llama-3.1-8b-instant"
+    groq_quality_model: str = "llama-3.3-70b-versatile"
+    groq_agent_model: str = "llama-3.3-70b-versatile"
 
     redis_broker_url: str = "redis://127.0.0.1:6379/0"
     database_url: str = "postgresql://postgres:postgres@127.0.0.1:54322/postgres"

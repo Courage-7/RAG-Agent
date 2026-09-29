@@ -4,10 +4,19 @@ version = "0.1.0"
 description = "Provider-neutral domain contracts for the RAG platform"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "fastembed>=0.4",
+    "flashrank>=0.2.10",
     "langchain-core>=1.2,<2",
     "langchain-groq>=1.1,<2",
+    "langgraph>=1.2.12",
+    "langgraph-checkpoint-sqlite>=3.1.1",
+    "pgvector>=0.3",
+    "psycopg[binary,pool]>=3.2",
     "pydantic>=2.12,<3",
     "pydantic-settings>=2.12,<3",
+    "pyjwt>=2.15.1",
+    "pypdf>=6.19.0",
+    "redis>=5.0",
     "structlog>=25.5,<26",
 ]
 
