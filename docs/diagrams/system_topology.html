@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-preset="classic">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="archify 2.17.0-dev.1">
+  <title>RAG-Agent System Topology Diagram</title>
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem('archify-theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (_) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="dark"] {
+      --bg: #020617;
+      --grid: #1e293b;
+      --text: #ffffff;
+      --text-muted: #94a3b8;
+      --text-dim: #475569;
+      --text-faint: #7d8da1;
+      --panel: rgba(15, 23, 42, 0.65);
+      --panel-border: #1e293b;
+      --lane-fill: rgba(15, 23, 42, 0.22);
+      --lane-stroke: #334155;
+      --arrow: #64748b;
+      --arrow-emphasis: #34d399;
+      --mask: #0f172a;
+      --frontend-fill: rgba(8, 51, 68, 0.45);
+      --frontend-stroke: #22d3ee;
+      --backend-fill: rgba(6, 78, 59, 0.45);
+      --backend-stroke: #34d399;
+      --database-fill: rgba(76, 29, 149, 0.45);
+      --database-stroke: #a78bfa;
+      --cloud-fill: rgba(120, 53, 15, 0.35);
+      --cloud-stroke: #fbbf24;
+      --security-fill: rgba(136, 19, 55, 0.45);
+      --security-stroke: #fb7185;
+      --messagebus-fill: rgba(251, 146, 60, 0.35);
+      --messagebus-stroke: #fb923c;
+      --external-fill: rgba(30, 41, 59, 0.55);
+      --external-stroke: #94a3b8;
+      --toolbar-bg: rgba(15, 23, 42, 0.85);
+      --toolbar-border: #334155;
+      --toolbar-text: #e2e8f0;
+      --toolbar-hover: rgba(30, 41, 59, 0.95);
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --grid: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --text-faint: #64748b;
+      --panel: #ffffff;
+      --panel-border: #e2e8f0;
+      --lane-fill: rgba(248, 250, 252, 0.7);
+      --lane-stroke: #cbd5e1;
+      --arrow: #64748b;
+      --arrow-emphasis: #059669;
+      --mask: #ffffff;
+      --frontend-fill: rgba(6, 182, 212, 0.12);
+      --frontend-stroke: #0891b2;
+      --backend-fill: rgba(16, 185, 129, 0.12);
+      --backend-stroke: #059669;
+      --database-fill: rgba(139, 92, 246, 0.12);
+      --database-stroke: #7c3aed;
+      --cloud-fill: rgba(245, 158, 11, 0.12);
+      --cloud-stroke: #d97706;
+      --security-fill: rgba(244, 63, 94, 0.12);
+      --security-stroke: #e11d48;
+      --messagebus-fill: rgba(249, 115, 22, 0.12);
+      --messagebus-stroke: #ea580c;
+      --external-fill: rgba(100, 116, 139, 0.12);
+      --external-stroke: #475569;
+      --toolbar-bg: rgba(255, 255, 255, 0.92);
+      --toolbar-border: #cbd5e1;
+      --toolbar-text: #1e293b;
+      --toolbar-hover: #f1f5f9;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1.5rem;
+      transition: background 0.2s, color 0.2s;
+    }
+    .container {
+      width: 100%;
+      max-width: 1380px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--backend-stroke);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--backend-stroke);
+    }
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .toolbar button {
+      background: var(--toolbar-bg);
+      color: var(--toolbar-text);
+      border: 1px solid var(--toolbar-border);
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.5rem;
+      font-family: inherit;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      backdrop-filter: blur(10px);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .toolbar button:hover {
+      background: var(--toolbar-hover);
+      border-color: var(--text-muted);
+    }
+    .guided-views {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      background: var(--panel);
+      padding: 0.45rem 0.65rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--panel-border);
+    }
+    .guided-view-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      padding: 0.3rem 0.65rem;
+      border-radius: 0.35rem;
+      font-family: inherit;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .guided-view-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .guided-view-btn.active {
+      background: color-mix(in srgb, var(--frontend-stroke) 15%, transparent);
+      border-color: var(--frontend-stroke);
+      color: var(--frontend-stroke);
+      font-weight: 600;
+    }
+    .diagram-container {
+      background: var(--panel);
+      border-radius: 0.75rem;
+      border: 1px solid var(--panel-border);
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    .diagram-container svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .c-grid { stroke: var(--grid); fill: none; }
+    .c-mask { fill: var(--mask); stroke: none; }
+    .c-frontend { fill: var(--frontend-fill); stroke: var(--frontend-stroke); }
+    .c-backend { fill: var(--backend-fill); stroke: var(--backend-stroke); }
+    .c-database { fill: var(--database-fill); stroke: var(--database-stroke); }
+    .c-cloud { fill: var(--cloud-fill); stroke: var(--cloud-stroke); }
+    .c-security { fill: var(--security-fill); stroke: var(--security-stroke); }
+    .c-messagebus { fill: var(--messagebus-fill); stroke: var(--messagebus-stroke); }
+    .c-external { fill: var(--external-fill); stroke: var(--external-stroke); }
+    .c-region { fill: rgba(245, 158, 11, 0.04); stroke: var(--cloud-stroke); stroke-dasharray: 8,4; }
+    .c-security-group { fill: transparent; stroke: var(--security-stroke); stroke-dasharray: 4,4; }
+    .a-default { stroke: var(--arrow); fill: none; }
+    .a-emphasis { stroke: var(--arrow-emphasis); fill: none; }
+    .a-security { stroke: var(--security-stroke); fill: none; }
+    .a-dashed { stroke: var(--messagebus-stroke); fill: none; stroke-dasharray: 5,4; }
+    .m-default { fill: var(--arrow); }
+    .m-emphasis { fill: var(--arrow-emphasis); }
+    .m-security { fill: var(--security-stroke); }
+    .m-dashed { fill: var(--messagebus-stroke); }
+    .t-primary { fill: var(--text); }
+    .t-muted { fill: var(--text-muted); }
+    .t-dim { fill: var(--text-dim); }
+    .t-backend { fill: var(--backend-stroke); }
+    .t-cloud { fill: var(--cloud-stroke); }
+    .t-security { fill: var(--security-stroke); }
+    .t-database { fill: var(--database-stroke); }
+    .t-messagebus { fill: var(--messagebus-stroke); }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 0.65rem;
+      padding: 1rem 1.15rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+    }
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .card-dot.cyan { background: var(--frontend-stroke); box-shadow: 0 0 8px var(--frontend-stroke); }
+    .card-dot.emerald { background: var(--backend-stroke); box-shadow: 0 0 8px var(--backend-stroke); }
+    .card-dot.amber { background: var(--cloud-stroke); box-shadow: 0 0 8px var(--cloud-stroke); }
+    .card h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .card li {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    [data-node-id] {
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    [data-node-id]:hover rect:nth-of-type(2) {
+      filter: drop-shadow(0 0 8px var(--frontend-stroke));
+    }
+    svg[data-focus-active] [data-node-id],
+    svg[data-focus-active] path {
+      opacity: 0.18;
+      transition: opacity 0.2s;
+    }
+    svg[data-focus-active] [data-node-id].focused,
+    svg[data-focus-active] path.focused,
+    svg[data-focus-active] g[data-edge-id].focused {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-left">
+        <div class="header-row">
+          <div class="pulse-dot"></div>
+          <h1>RAG-Agent System Topology</h1>
+        </div>
+        <p class="subtitle">Distributed Agentic RAG: FastAPI Gateway, LangGraph StateGraph, PostgreSQL 16 Hybrid Index, and Transactional Outbox</p>
+      </div>
+      <div class="toolbar">
+        <button id="btn-theme" type="button" aria-label="Toggle theme">
+          <span id="theme-label">Theme</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="guided-views">
+      <span style="font-size:0.7rem; color:var(--text-faint); margin-right:0.25rem;">Views:</span>
+      <button class="guided-view-btn active" data-view="all">All Components</button>
+      <button class="guided-view-btn" data-view="query-path">Adaptive Query & Retrieval</button>
+      <button class="guided-view-btn" data-view="ingestion-path">Transactional Ingestion Flow</button>
+      <button class="guided-view-btn" data-view="storage-core">Storage & Vector Engine</button>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 920 620" role="img" lang="en" aria-labelledby="diagram-title" data-quality-profile="showcase">
+        <title id="diagram-title">RAG-Agent System Topology</title>
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Boundaries -->
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" x="205" y="290" width="675" height="285" rx="12" class="c-region" stroke-width="1"/>
+        <g data-graph-role="structural-frame-label">
+          <rect x="215" y="278" width="220" height="18" rx="4" class="c-mask"/>
+          <text x="222" y="291" class="t-cloud" font-size="9" font-weight="600">Asynchronous Ingestion Subsystem</text>
+        </g>
+
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="security-group" x="205" y="120" width="430" height="125" rx="8" class="c-security-group" stroke-width="1"/>
+        <g data-graph-role="structural-frame-label">
+          <rect x="215" y="108" width="200" height="18" rx="4" class="c-mask"/>
+          <text x="222" y="121" class="t-security" font-size="9" font-weight="600">API Gateway &amp; Reasoning Core (:8000)</text>
+        </g>
+
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="security-group" x="430" y="295" width="205" height="120" rx="8" class="c-security-group" stroke-width="1"/>
+        <g data-graph-role="structural-frame-label">
+          <rect x="440" y="283" width="180" height="18" rx="4" class="c-mask"/>
+          <text x="447" y="296" class="t-database" font-size="9" font-weight="600">Durable Vector Store (:5432)</text>
+        </g>
+
+        <!-- Connection Paths -->
+        <path data-edge-id="client-to-api" data-edge-from="client" data-edge-to="api" d="M 160 182 L 230 182" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-id="api-to-langgraph" data-edge-from="api" data-edge-to="langgraph" d="M 370 182 L 450 182" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-id="langgraph-to-groq" data-edge-from="langgraph" data-edge-to="groq" d="M 600 182 L 690 182" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-id="langgraph-to-postgres" data-edge-from="langgraph" data-edge-to="postgres" d="M 525 214 L 525 325" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-id="postgres-to-flashrank" data-edge-from="postgres" data-edge-to="flashrank" d="M 600 359 L 690 359" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-id="flashrank-to-langgraph" data-edge-from="flashrank" data-edge-to="langgraph" d="M 760 325 L 760 260 L 575 260 L 575 214" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-id="api-to-dispatcher" data-edge-from="api" data-edge-to="dispatcher" d="M 300 214 L 300 325" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-id="dispatcher-to-redis" data-edge-from="dispatcher" data-edge-to="redis" d="M 300 393 L 300 480" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-id="redis-to-dramatiq" data-edge-from="redis" data-edge-to="dramatiq" d="M 370 512 L 450 512" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-id="dramatiq-to-fastembed" data-edge-from="dramatiq" data-edge-to="fastembed" d="M 600 512 L 690 512" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-id="fastembed-to-postgres" data-edge-from="fastembed" data-edge-to="postgres" d="M 760 480 L 760 435 L 550 435 L 550 393" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+
+        <!-- Labels -->
+        <g data-edge-id="client-to-api"><rect x="172" y="172" width="46" height="15" rx="3" class="c-mask"/><text x="195" y="183" class="t-backend" font-size="8" text-anchor="middle">POST/SSE</text></g>
+        <g data-edge-id="api-to-langgraph"><rect x="385" y="172" width="50" height="15" rx="3" class="c-mask"/><text x="410" y="183" class="t-muted" font-size="8" text-anchor="middle">invoke state</text></g>
+        <g data-edge-id="langgraph-to-groq"><rect x="618" y="172" width="54" height="15" rx="3" class="c-mask"/><text x="645" y="183" class="t-backend" font-size="8" text-anchor="middle">LPU prompt</text></g>
+        <g data-edge-id="langgraph-to-postgres"><rect x="495" y="260" width="60" height="15" rx="3" class="c-mask"/><text x="525" y="271" class="t-muted" font-size="8" text-anchor="middle">hybrid RPC</text></g>
+        <g data-edge-id="postgres-to-flashrank"><rect x="615" y="349" width="60" height="15" rx="3" class="c-mask"/><text x="645" y="360" class="t-muted" font-size="8" text-anchor="middle">top-20 RRF</text></g>
+        <g data-edge-id="flashrank-to-langgraph"><rect x="630" y="252" width="68" height="15" rx="3" class="c-mask"/><text x="664" y="263" class="t-messagebus" font-size="8" text-anchor="middle">top-5 rescored</text></g>
+        <g data-edge-id="api-to-dispatcher"><rect x="270" y="260" width="60" height="15" rx="3" class="c-mask"/><text x="300" y="271" class="t-security" font-size="8" text-anchor="middle">ACID outbox</text></g>
+        <g data-edge-id="dispatcher-to-redis"><rect x="268" y="427" width="64" height="15" rx="3" class="c-mask"/><text x="300" y="438" class="t-muted" font-size="8" text-anchor="middle">enqueue task</text></g>
+        <g data-edge-id="redis-to-dramatiq"><rect x="382" y="502" width="56" height="15" rx="3" class="c-mask"/><text x="410" y="513" class="t-muted" font-size="8" text-anchor="middle">pull chunk</text></g>
+        <g data-edge-id="dramatiq-to-fastembed"><rect x="618" y="502" width="54" height="15" rx="3" class="c-mask"/><text x="645" y="513" class="t-muted" font-size="8" text-anchor="middle">ONNX embed</text></g>
+        <g data-edge-id="fastembed-to-postgres"><rect x="625" y="427" width="68" height="15" rx="3" class="c-mask"/><text x="659" y="438" class="t-backend" font-size="8" text-anchor="middle">insert vectors</text></g>
+
+        <!-- Components -->
+        <g data-node-id="client">
+          <rect x="40" y="150" width="120" height="64" rx="6" class="c-mask"/>
+          <rect x="40" y="150" width="120" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <text x="100" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Web Console</text>
+          <text x="100" y="190" class="t-muted" font-size="8.5" text-anchor="middle">Browser / SSE UI</text>
+          <text x="100" y="202" class="t-backend" font-size="7" text-anchor="middle">Port 8000</text>
+        </g>
+
+        <g data-node-id="api">
+          <rect x="230" y="150" width="140" height="64" rx="6" class="c-mask"/>
+          <rect x="230" y="150" width="140" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+          <text x="300" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">FastAPI Gateway</text>
+          <text x="300" y="190" class="t-muted" font-size="8.5" text-anchor="middle">HTTP &amp; SSE Stream</text>
+          <text x="300" y="202" class="t-backend" font-size="7" text-anchor="middle">Uvicorn ASGI</text>
+        </g>
+
+        <g data-node-id="langgraph">
+          <rect x="450" y="150" width="150" height="64" rx="6" class="c-mask"/>
+          <rect x="450" y="150" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+          <text x="525" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">LangGraph Core</text>
+          <text x="525" y="190" class="t-muted" font-size="8.5" text-anchor="middle">Adaptive StateGraph</text>
+          <text x="525" y="202" class="t-backend" font-size="7" text-anchor="middle">Bounded FSM</text>
+        </g>
+
+        <g data-node-id="groq">
+          <rect x="690" y="150" width="140" height="64" rx="6" class="c-mask"/>
+          <rect x="690" y="150" width="140" height="64" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <text x="760" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Groq LPU Engine</text>
+          <text x="760" y="190" class="t-muted" font-size="8.5" text-anchor="middle">Llama-3.1/3.3 LPUs</text>
+          <text x="760" y="202" class="t-cloud" font-size="7" text-anchor="middle">Fast Inference</text>
+        </g>
+
+        <g data-node-id="postgres">
+          <rect x="450" y="325" width="150" height="68" rx="6" class="c-mask"/>
+          <rect x="450" y="325" width="150" height="68" rx="6" class="c-database" stroke-width="1.5"/>
+          <text x="525" y="348" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">PostgreSQL 16</text>
+          <text x="525" y="364" class="t-muted" font-size="8" text-anchor="middle">HNSW (m=16) + GIN</text>
+          <text x="525" y="377" class="t-database" font-size="7" text-anchor="middle">RRF Fusion k=60</text>
+        </g>
+
+        <g data-node-id="flashrank">
+          <rect x="690" y="325" width="140" height="68" rx="6" class="c-mask"/>
+          <rect x="690" y="325" width="140" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
+          <text x="760" y="348" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">FlashRank Rescorer</text>
+          <text x="760" y="364" class="t-muted" font-size="8" text-anchor="middle">TinyBERT-L-2-v2</text>
+          <text x="760" y="377" class="t-backend" font-size="7" text-anchor="middle">Local ONNX CPU</text>
+        </g>
+
+        <g data-node-id="dispatcher">
+          <rect x="230" y="325" width="140" height="68" rx="6" class="c-mask"/>
+          <rect x="230" y="325" width="140" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
+          <text x="300" y="348" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">Outbox Dispatcher</text>
+          <text x="300" y="364" class="t-muted" font-size="8" text-anchor="middle">SKIP LOCKED Daemon</text>
+          <text x="300" y="377" class="t-backend" font-size="7" text-anchor="middle">Polling Batch 10</text>
+        </g>
+
+        <g data-node-id="redis">
+          <rect x="230" y="480" width="140" height="64" rx="6" class="c-mask"/>
+          <rect x="230" y="480" width="140" height="64" rx="6" class="c-messagebus" stroke-width="1.5"/>
+          <text x="300" y="504" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Redis 8 Broker</text>
+          <text x="300" y="520" class="t-muted" font-size="8.5" text-anchor="middle">dramatiq:default</text>
+          <text x="300" y="532" class="t-messagebus" font-size="7" text-anchor="middle">Append-Only File</text>
+        </g>
+
+        <g data-node-id="dramatiq">
+          <rect x="450" y="480" width="150" height="64" rx="6" class="c-mask"/>
+          <rect x="450" y="480" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+          <text x="525" y="504" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Dramatiq Workers</text>
+          <text x="525" y="520" class="t-muted" font-size="8.5" text-anchor="middle">Parsing &amp; Chunking</text>
+          <text x="525" y="532" class="t-backend" font-size="7" text-anchor="middle">Thread Pool</text>
+        </g>
+
+        <g data-node-id="fastembed">
+          <rect x="690" y="480" width="140" height="64" rx="6" class="c-mask"/>
+          <rect x="690" y="480" width="140" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+          <text x="760" y="504" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">FastEmbed ONNX</text>
+          <text x="760" y="520" class="t-muted" font-size="8.5" text-anchor="middle">bge-small-en-v1.5</text>
+          <text x="760" y="532" class="t-backend" font-size="7" text-anchor="middle">Dense 384d Vectors</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>API Gateway &amp; Reasoning Core</h3>
+        </div>
+        <ul>
+          <li>&bull; FastAPI serves HTTP uploads and real-time SSE stream endpoints at port 8000</li>
+          <li>&bull; LangGraph coordinates bounded state transitions with in-memory or SQLite checkpointers</li>
+          <li>&bull; Groq LPU executes fast query condensation and grounded context synthesis</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Dual-Engine Hybrid Search</h3>
+        </div>
+        <ul>
+          <li>&bull; PostgreSQL 16 pgvector index computes HNSW cosine distance (m=16, ef=64)</li>
+          <li>&bull; Full-text lexical search matches keywords via tsvector GIN index</li>
+          <li>&bull; Local FlashRank cross-encoder eliminates lost-in-the-middle context decay</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Transactional Ingestion Engine</h3>
+        </div>
+        <ul>
+          <li>&bull; Atomic outbox writes eliminate distributed dual-write inconsistency</li>
+          <li>&bull; Daemon polls pending jobs concurrently with FOR UPDATE SKIP LOCKED</li>
+          <li>&bull; Redis 8 and Dramatiq manage CPU-bound document chunking and ONNX embeddings</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script id="archify-guided-views-data" type="application/json">
+    [
+      {
+        "id": "query-path",
+        "label": "Adaptive Query & Retrieval",
+        "focus": ["client", "api", "langgraph", "postgres", "flashrank", "groq"]
+      },
+      {
+        "id": "ingestion-path",
+        "label": "Transactional Ingestion Flow",
+        "focus": ["client", "api", "dispatcher", "redis", "dramatiq", "fastembed", "postgres"]
+      },
+      {
+        "id": "storage-core",
+        "label": "Storage & Vector Engine",
+        "focus": ["postgres", "flashrank", "langgraph"]
+      }
+    ]
+  </script>
+
+  <script>
+    (function () {
+      var views = JSON.parse(document.getElementById('archify-guided-views-data').textContent);
+      var svg = document.querySelector('svg');
+      var viewBtns = document.querySelectorAll('.guided-view-btn');
+      var themeBtn = document.getElementById('btn-theme');
+
+      themeBtn.addEventListener('click', function () {
+        var current = document.documentElement.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('archify-theme', next);
+      });
+
+      function applyFocus(nodeIds) {
+        if (!nodeIds || nodeIds.length === 0) {
+          svg.removeAttribute('data-focus-active');
+          document.querySelectorAll('[data-node-id], path, g[data-edge-id]').forEach(function (el) {
+            el.classList.remove('focused');
+          });
+          return;
+        }
+        svg.setAttribute('data-focus-active', 'true');
+        var set = new Set(nodeIds);
+        document.querySelectorAll('[data-node-id]').forEach(function (node) {
+          var id = node.getAttribute('data-node-id');
+          if (set.has(id)) node.classList.add('focused');
+          else node.classList.remove('focused');
+        });
+        document.querySelectorAll('path[data-edge-from], g[data-edge-id]').forEach(function (edge) {
+          var from = edge.getAttribute('data-edge-from');
+          var to = edge.getAttribute('data-edge-to');
+          if (!from && edge.querySelector('path')) {
+            var p = edge.querySelector('path');
+            from = p.getAttribute('data-edge-from');
+            to = p.getAttribute('data-edge-to');
+          }
+          if (set.has(from) && set.has(to)) edge.classList.add('focused');
+          else edge.classList.remove('focused');
+        });
+      }
+
+      viewBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          viewBtns.forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          var viewId = btn.getAttribute('data-view');
+          if (viewId === 'all') {
+            applyFocus(null);
+          } else {
+            var target = views.find(function (v) { return v.id === viewId; });
+            if (target) applyFocus(target.focus);
+          }
+        });
+      });
+
+      document.querySelectorAll('[data-node-id]').forEach(function (node) {
+        node.addEventListener('click', function () {
+          var id = node.getAttribute('data-node-id');
+          var connected = new Set([id]);
+          document.querySelectorAll('path[data-edge-from]').forEach(function (p) {
+            var from = p.getAttribute('data-edge-from');
+            var to = p.getAttribute('data-edge-to');
+            if (from === id) connected.add(to);
+            if (to === id) connected.add(from);
+          });
+          applyFocus(Array.from(connected));
+        });
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          applyFocus(null);
+          viewBtns.forEach(function (b) { b.classList.remove('active'); });
+          document.querySelector('[data-view="all"]').classList.add('active');
+        } else if (e.key === 't' || e.key === 'T') {
+          themeBtn.click();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

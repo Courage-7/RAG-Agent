@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "RAG-Agent System Topology",
+    "output": "system_topology.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "query-path",
+        "label": "Adaptive Query & Retrieval",
+        "focus": ["client", "api", "langgraph", "postgres", "flashrank", "groq"],
+        "note": "Trace client queries through FastAPI, LangGraph adaptive routing, PostgreSQL hybrid search, and FlashRank reranking."
+      },
+      {
+        "id": "ingestion-path",
+        "label": "Transactional Ingestion Flow",
+        "focus": ["client", "api", "dispatcher", "redis", "dramatiq", "fastembed", "postgres"],
+        "note": "Follow multipart file uploads from atomic ACID outbox staging to Redis, Dramatiq workers, and ONNX vector indexing."
+      },
+      {
+        "id": "storage-core",
+        "label": "Storage & Vector Engine",
+        "focus": ["postgres", "flashrank", "langgraph"],
+        "note": "Dual-engine HNSW pgvector and GIN tsvector retrieval fused via Reciprocal Rank Fusion (k=60)."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "frontend",
+      "label": "Client Web Console",
+      "sublabel": "Browser / REST / SSE",
+      "pos": [40, 180],
+      "size": [130, 64],
+      "tag": "Port 8000"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "FastAPI Gateway",
+      "sublabel": "HTTP & SSE Endpoints",
+      "pos": [250, 180],
+      "size": [140, 64],
+      "tag": "Uvicorn ASGI"
+    },
+    {
+      "id": "langgraph",
+      "type": "backend",
+      "label": "LangGraph StateGraph",
+      "sublabel": "Adaptive Reasoning Core",
+      "pos": [480, 180],
+      "size": [150, 64],
+      "tag": "Bounded FSM"
+    },
+    {
+      "id": "groq",
+      "type": "cloud",
+      "label": "Groq LPU Engine",
+      "sublabel": "Llama-3.1/3.3 Inference",
+      "pos": [720, 180],
+      "size": [140, 64],
+      "tag": "Sub-Second LPUs"
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL 16",
+      "sublabel": "HNSW (m=16) + GIN (BM25)",
+      "pos": [480, 350],
+      "size": [150, 68],
+      "tag": "RRF Fusion k=60"
+    },
+    {
+      "id": "flashrank",
+      "type": "backend",
+      "label": "FlashRank Cross-Encoder",
+      "sublabel": "TinyBERT-L-2-v2 ONNX",
+      "pos": [720, 350],
+      "size": [140, 68],
+      "tag": "Local Rescoring"
+    },
+    {
+      "id": "dispatcher",
+      "type": "backend",
+      "label": "Outbox Dispatcher",
+      "sublabel": "FOR UPDATE SKIP LOCKED",
+      "pos": [250, 350],
+      "size": [140, 68],
+      "tag": "Polling Daemon"
+    },
+    {
+      "id": "redis",
+      "type": "messagebus",
+      "label": "Redis 8 Broker",
+      "sublabel": "Dramatiq Tasks Queue",
+      "pos": [250, 510],
+      "size": [140, 64],
+      "tag": "AOF Storage"
+    },
+    {
+      "id": "dramatiq",
+      "type": "backend",
+      "label": "Dramatiq Worker Pool",
+      "sublabel": "Parsing & Chunking",
+      "pos": [480, 510],
+      "size": [150, 64],
+      "tag": "Multi-threaded"
+    },
+    {
+      "id": "fastembed",
+      "type": "backend",
+      "label": "FastEmbed ONNX",
+      "sublabel": "bge-small-en-v1.5",
+      "pos": [720, 510],
+      "size": [140, 64],
+      "tag": "Dense 384d"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "security-group",
+      "label": "API Gateway & State Core (:8000)",
+      "wraps": ["api", "langgraph"]
+    },
+    {
+      "kind": "security-group",
+      "label": "Durable Vector & Relational Storage (:5432)",
+      "wraps": ["postgres"]
+    },
+    {
+      "kind": "region",
+      "label": "Asynchronous Ingestion Subsystem",
+      "wraps": ["dispatcher", "redis", "dramatiq", "fastembed"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "client-to-api",
+      "from": "client",
+      "to": "api",
+      "label": "POST /stream",
+      "variant": "emphasis"
+    },
+    {
+      "id": "api-to-langgraph",
+      "from": "api",
+      "to": "langgraph",
+      "label": "invoke state",
+      "variant": "default"
+    },
+    {
+      "id": "langgraph-to-groq",
+      "from": "langgraph",
+      "to": "groq",
+      "label": "condense & generate",
+      "variant": "emphasis"
+    },
+    {
+      "id": "langgraph-to-postgres",
+      "from": "langgraph",
+      "to": "postgres",
+      "label": "hybrid RPC query",
+      "variant": "default",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "postgres-to-flashrank",
+      "from": "postgres",
+      "to": "flashrank",
+      "label": "top-20 candidates",
+      "variant": "default"
+    },
+    {
+      "id": "flashrank-to-langgraph",
+      "from": "flashrank",
+      "to": "langgraph",
+      "label": "top-5 rescored",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "api-to-dispatcher",
+      "from": "api",
+      "to": "dispatcher",
+      "label": "ACID outbox insert",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "dispatcher-to-redis",
+      "from": "dispatcher",
+      "to": "redis",
+      "label": "enqueue task",
+      "variant": "default",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "redis-to-dramatiq",
+      "from": "redis",
+      "to": "dramatiq",
+      "label": "consume task",
+      "variant": "default"
+    },
+    {
+      "id": "dramatiq-to-fastembed",
+      "from": "dramatiq",
+      "to": "fastembed",
+      "label": "generate vectors",
+      "variant": "default"
+    },
+    {
+      "id": "fastembed-to-postgres",
+      "from": "fastembed",
+      "to": "postgres",
+      "label": "write chunk vectors",
+      "variant": "emphasis",
+      "fromSide": "left",
+      "toSide": "right",
+      "via": [[670, 542], [670, 395], [630, 395]]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "API Gateway & State Core",
+      "items": [
+        "FastAPI provides SSE streaming and HTTP ingest endpoints at port 8000",
+        "LangGraph StateGraph coordinates bounded, cyclic query reasoning",
+        "LPU inference offloads query condensation to Groq llama-3.1-8b"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Dual-Engine Hybrid Search",
+      "items": [
+        "PostgreSQL 16 combines HNSW cosine vectors with GIN BM25 tsvector",
+        "Reciprocal Rank Fusion fuses candidate ranks with smoothing factor k=60",
+        "Local FlashRank cross-encoder eliminates lost-in-the-middle position decay"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Transactional Ingestion Subsystem",
+      "items": [
+        "ACID outbox pattern eliminates distributed dual-write inconsistency",
+        "Background dispatcher daemon polls events with FOR UPDATE SKIP LOCKED",
+        "Redis 8 and Dramatiq worker pool orchestrate CPU-bound parsing and FastEmbed ONNX"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Query & Adaptive Retrieval Lifecycle",
+    "output": "query_lifecycle.html",
+    "viewBox": [960, 780],
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "condensation-view",
+        "label": "Intake & Condensation",
+        "focus": ["client", "api", "agent", "groq"],
+        "note": "Client SSE stream request triggers fast LPU condensation to rewrite pronouns into standalone search queries."
+      },
+      {
+        "id": "retrieval-view",
+        "label": "Hybrid Retrieval & Rescoring",
+        "focus": ["agent", "postgres", "reranker", "web"],
+        "note": "Dual-engine PostgreSQL hybrid search fused via RRF (k=60), rescored by FlashRank cross-encoder with CRAG fallback."
+      },
+      {
+        "id": "synthesis-view",
+        "label": "Grounded Token Stream",
+        "focus": ["agent", "groq", "api", "client"],
+        "note": "Language model streams citations and grounded answer tokens directly to the client interface."
+      }
+    ]
+  },
+  "participants": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Client UI",
+      "sublabel": "Browser / REST"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "FastAPI",
+      "sublabel": "Stream Handler"
+    },
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "LangGraph Core",
+      "sublabel": "StateGraph"
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL 16",
+      "sublabel": "HNSW + BM25 GIN"
+    },
+    {
+      "id": "reranker",
+      "type": "backend",
+      "label": "FlashRank",
+      "sublabel": "Cross-Encoder"
+    },
+    {
+      "id": "web",
+      "type": "cloud",
+      "label": "Web Search",
+      "sublabel": "CRAG Fallback"
+    },
+    {
+      "id": "groq",
+      "type": "cloud",
+      "label": "Groq LPU",
+      "sublabel": "Llama-3.3-70b"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 315,
+      "label": "Phase 1: SSE Request & Query Condensation"
+    },
+    {
+      "from": 335,
+      "to": 545,
+      "label": "Phase 2: Hybrid Search & Cross-Encoder Rescoring"
+    },
+    {
+      "from": 560,
+      "to": 710,
+      "label": "Phase 3: Grounded Synthesis & Token Streaming"
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg_query_stream",
+      "from": "client",
+      "to": "api",
+      "y": 180,
+      "label": "POST /v1/agent/stream {query, thread_id}",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg_invoke_state",
+      "from": "api",
+      "to": "agent",
+      "y": 215,
+      "label": "Invoke StateGraph with checkpointed conversation history",
+      "variant": "default"
+    },
+    {
+      "id": "msg_condense_req",
+      "from": "agent",
+      "to": "groq",
+      "y": 250,
+      "label": "Condense query: resolve coreference and pronouns via LPU",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg_condense_res",
+      "from": "groq",
+      "to": "agent",
+      "y": 285,
+      "label": "Return disambiguated standalone search query string",
+      "variant": "return"
+    },
+    {
+      "id": "msg_rpc_query",
+      "from": "agent",
+      "to": "postgres",
+      "y": 350,
+      "label": "SELECT match_chunks_hybrid(query_text, query_embedding)",
+      "variant": "default"
+    },
+    {
+      "id": "msg_rpc_results",
+      "from": "postgres",
+      "to": "agent",
+      "y": 385,
+      "label": "Return top-20 candidates fused via Reciprocal Rank Fusion (k=60)",
+      "variant": "return"
+    },
+    {
+      "id": "msg_rerank_req",
+      "from": "agent",
+      "to": "reranker",
+      "y": 425,
+      "label": "Joint cross-attention scoring over (query, candidate) token pairs",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg_rerank_res",
+      "from": "reranker",
+      "to": "agent",
+      "y": 460,
+      "label": "Return top-5 rescored passages (lost-in-middle decay eliminated)",
+      "variant": "return"
+    },
+    {
+      "id": "msg_crag_fallback",
+      "from": "agent",
+      "to": "web",
+      "y": 495,
+      "label": "[CRAG trigger if 0 chunks] Execute autonomous web search fallback",
+      "variant": "security"
+    },
+    {
+      "id": "msg_crag_results",
+      "from": "web",
+      "to": "agent",
+      "y": 525,
+      "label": "Return external real-time web snippets",
+      "variant": "return"
+    },
+    {
+      "id": "msg_generate_stream",
+      "from": "agent",
+      "to": "groq",
+      "y": 575,
+      "label": "Stream synthesis prompt with rescored passages and citation schema",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg_token_stream",
+      "from": "groq",
+      "to": "api",
+      "y": 615,
+      "label": "Yield incremental Server-Sent Events (SSE) token packets",
+      "variant": "return"
+    },
+    {
+      "id": "msg_client_tokens",
+      "from": "api",
+      "to": "client",
+      "y": 650,
+      "label": "Stream token chunks with inline citation metadata [1], [2]",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg_stream_done",
+      "from": "api",
+      "to": "client",
+      "y": 685,
+      "label": "Stream terminal event: event: done with source chunk UUIDs",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "api",
+      "from": 178,
+      "to": 692,
+      "type": "backend"
+    },
+    {
+      "participant": "agent",
+      "from": 212,
+      "to": 620,
+      "type": "backend"
+    },
+    {
+      "participant": "postgres",
+      "from": 345,
+      "to": 390,
+      "type": "database"
+    },
+    {
+      "participant": "reranker",
+      "from": 420,
+      "to": 465,
+      "type": "backend"
+    },
+    {
+      "participant": "groq",
+      "from": 245,
+      "to": 290,
+      "type": "cloud"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Query Disambiguation",
+      "items": [
+        "Resolves multi-turn conversational coreference ('What did it cost?')",
+        "Sub-second LPU rewrite generates standalone search terms before SQL execution",
+        "Preserves semantic precision without corrupting embedding geometry"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Reciprocal Rank Fusion + FlashRank",
+      "items": [
+        "Combines dense HNSW cosine similarity with lexical BM25 GIN index",
+        "RRF smoothing factor k=60 prevents either modality from dominating candidates",
+        "Cross-encoder evaluates full token self-attention to eliminate lost-in-the-middle decay"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Autonomous CRAG Fallback",
+      "items": [
+        "Decide node checks candidate count and confidence scores",
+        "Zero-evidence states dynamically route to external search tools",
+        "Ensures hallucinations are prevented even when workspace index is completely empty"
+      ]
+    }
+  ]
+}

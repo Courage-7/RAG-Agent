@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-preset="signal-flow">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="archify 2.17.0-dev.1">
+  <title>LangGraph Adaptive RAG StateGraph Diagram</title>
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem('archify-theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (_) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="dark"] {
+      --bg: #020617;
+      --grid: #1e293b;
+      --text: #ffffff;
+      --text-muted: #94a3b8;
+      --text-dim: #475569;
+      --text-faint: #7d8da1;
+      --panel: rgba(15, 23, 42, 0.65);
+      --panel-border: #1e293b;
+      --lane-fill: rgba(15, 23, 42, 0.22);
+      --lane-stroke: #334155;
+      --arrow: #64748b;
+      --arrow-emphasis: #34d399;
+      --mask: #0f172a;
+      --frontend-fill: rgba(8, 51, 68, 0.45);
+      --frontend-stroke: #22d3ee;
+      --backend-fill: rgba(6, 78, 59, 0.45);
+      --backend-stroke: #34d399;
+      --database-fill: rgba(76, 29, 149, 0.45);
+      --database-stroke: #a78bfa;
+      --cloud-fill: rgba(120, 53, 15, 0.35);
+      --cloud-stroke: #fbbf24;
+      --security-fill: rgba(136, 19, 55, 0.45);
+      --security-stroke: #fb7185;
+      --messagebus-fill: rgba(251, 146, 60, 0.35);
+      --messagebus-stroke: #fb923c;
+      --external-fill: rgba(30, 41, 59, 0.55);
+      --external-stroke: #94a3b8;
+      --toolbar-bg: rgba(15, 23, 42, 0.85);
+      --toolbar-border: #334155;
+      --toolbar-text: #e2e8f0;
+      --toolbar-hover: rgba(30, 41, 59, 0.95);
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --grid: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --text-faint: #64748b;
+      --panel: #ffffff;
+      --panel-border: #e2e8f0;
+      --lane-fill: rgba(248, 250, 252, 0.7);
+      --lane-stroke: #cbd5e1;
+      --arrow: #64748b;
+      --arrow-emphasis: #059669;
+      --mask: #ffffff;
+      --frontend-fill: rgba(6, 182, 212, 0.12);
+      --frontend-stroke: #0891b2;
+      --backend-fill: rgba(16, 185, 129, 0.12);
+      --backend-stroke: #059669;
+      --database-fill: rgba(139, 92, 246, 0.12);
+      --database-stroke: #7c3aed;
+      --cloud-fill: rgba(245, 158, 11, 0.12);
+      --cloud-stroke: #d97706;
+      --security-fill: rgba(244, 63, 94, 0.12);
+      --security-stroke: #e11d48;
+      --messagebus-fill: rgba(249, 115, 22, 0.12);
+      --messagebus-stroke: #ea580c;
+      --external-fill: rgba(100, 116, 139, 0.12);
+      --external-stroke: #475569;
+      --toolbar-bg: rgba(255, 255, 255, 0.92);
+      --toolbar-border: #cbd5e1;
+      --toolbar-text: #1e293b;
+      --toolbar-hover: #f1f5f9;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1.5rem;
+      transition: background 0.2s, color 0.2s;
+    }
+    .container {
+      width: 100%;
+      max-width: 1380px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--frontend-stroke);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--frontend-stroke);
+    }
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .toolbar button {
+      background: var(--toolbar-bg);
+      color: var(--toolbar-text);
+      border: 1px solid var(--toolbar-border);
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.5rem;
+      font-family: inherit;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      backdrop-filter: blur(10px);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .toolbar button:hover {
+      background: var(--toolbar-hover);
+      border-color: var(--text-muted);
+    }
+    .guided-views {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      background: var(--panel);
+      padding: 0.45rem 0.65rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--panel-border);
+    }
+    .guided-view-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      padding: 0.3rem 0.65rem;
+      border-radius: 0.35rem;
+      font-family: inherit;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .guided-view-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .guided-view-btn.active {
+      background: color-mix(in srgb, var(--frontend-stroke) 15%, transparent);
+      border-color: var(--frontend-stroke);
+      color: var(--frontend-stroke);
+      font-weight: 600;
+    }
+    .diagram-container {
+      background: var(--panel);
+      border-radius: 0.75rem;
+      border: 1px solid var(--panel-border);
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    .diagram-container svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .c-grid { stroke: var(--grid); fill: none; }
+    .c-mask { fill: var(--mask); stroke: none; }
+    .c-lane { fill: var(--lane-fill); stroke: var(--lane-stroke); stroke-dasharray: 6,6; }
+    .c-frontend { fill: var(--frontend-fill); stroke: var(--frontend-stroke); }
+    .c-backend { fill: var(--backend-fill); stroke: var(--backend-stroke); }
+    .c-database { fill: var(--database-fill); stroke: var(--database-stroke); }
+    .c-cloud { fill: var(--cloud-fill); stroke: var(--cloud-stroke); }
+    .c-security { fill: var(--security-fill); stroke: var(--security-stroke); }
+    .c-security-group { fill: transparent; stroke: var(--security-stroke); stroke-dasharray: 4,4; }
+    .c-messagebus { fill: var(--messagebus-fill); stroke: var(--messagebus-stroke); }
+    .c-external { fill: var(--external-fill); stroke: var(--external-stroke); }
+    .a-default { stroke: var(--arrow); fill: none; }
+    .a-emphasis { stroke: var(--arrow-emphasis); fill: none; }
+    .a-security { stroke: var(--security-stroke); fill: none; }
+    .a-dashed { stroke: var(--messagebus-stroke); fill: none; stroke-dasharray: 5,4; }
+    .m-default { fill: var(--arrow); }
+    .m-emphasis { fill: var(--arrow-emphasis); }
+    .m-security { fill: var(--security-stroke); }
+    .m-dashed { fill: var(--messagebus-stroke); }
+    .t-primary { fill: var(--text); }
+    .t-muted { fill: var(--text-muted); }
+    .t-dim { fill: var(--text-dim); }
+    .t-backend { fill: var(--backend-stroke); }
+    .t-cloud { fill: var(--cloud-stroke); }
+    .t-security { fill: var(--security-stroke); }
+    .t-database { fill: var(--database-stroke); }
+    .t-messagebus { fill: var(--messagebus-stroke); }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 0.65rem;
+      padding: 1rem 1.15rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+    }
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .card-dot.cyan { background: var(--frontend-stroke); box-shadow: 0 0 8px var(--frontend-stroke); }
+    .card-dot.emerald { background: var(--backend-stroke); box-shadow: 0 0 8px var(--backend-stroke); }
+    .card-dot.rose { background: var(--security-stroke); box-shadow: 0 0 8px var(--security-stroke); }
+    .card h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .card li {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    [data-node-id] {
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    [data-node-id]:hover rect:nth-of-type(2) {
+      filter: drop-shadow(0 0 8px var(--frontend-stroke));
+    }
+    svg[data-focus-active] [data-node-id],
+    svg[data-focus-active] path {
+      opacity: 0.18;
+      transition: opacity 0.2s;
+    }
+    svg[data-focus-active] [data-node-id].focused,
+    svg[data-focus-active] path.focused,
+    svg[data-focus-active] g[data-edge-id].focused {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-left">
+        <div class="header-row">
+          <div class="pulse-dot"></div>
+          <h1>LangGraph Adaptive RAG StateGraph</h1>
+        </div>
+        <p class="subtitle">Bounded LangGraph Finite State Transitions: Pronoun Condensation, Dual-Engine Retrieval, CRAG Evidence Evaluation, and Autonomous Web Fallback</p>
+      </div>
+      <div class="toolbar">
+        <button id="btn-theme" type="button" aria-label="Toggle theme">
+          <span id="theme-label">Theme</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="guided-views">
+      <span style="font-size:0.7rem; color:var(--text-faint); margin-right:0.25rem;">Views:</span>
+      <button class="guided-view-btn active" data-view="all">All States</button>
+      <button class="guided-view-btn" data-view="happy-path">Knowledge Retrieval Path</button>
+      <button class="guided-view-btn" data-view="direct-path">Direct Conversational Fast-Path</button>
+      <button class="guided-view-btn" data-view="fallback-path">Corrective Web Search Fallback</button>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1080 620" role="img" lang="en" aria-labelledby="stategraph-title" data-quality-profile="showcase">
+        <title id="stategraph-title">LangGraph Adaptive RAG StateGraph</title>
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-default" />
+          </marker>
+          <marker id="arrowhead-emphasis" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-emphasis" />
+          </marker>
+          <marker id="arrowhead-security" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-security" />
+          </marker>
+          <marker id="arrowhead-dashed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" class="m-dashed" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" class="c-grid" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- Swimlanes -->
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" x="40" y="48" width="1000" height="108" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="54" y="70" class="t-dim" font-size="10" font-weight="600">01 / Intake &amp; Condensation</text>
+
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" x="40" y="172" width="1000" height="114" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="54" y="194" class="t-dim" font-size="10" font-weight="600">02 / Retrieval &amp; Evaluation</text>
+
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" x="40" y="302" width="1000" height="114" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="exception-lane" x="46" y="308" width="988" height="102" rx="8" class="c-security-group" stroke-width="1"/>
+        <text x="54" y="324" class="t-security" font-size="10" font-weight="600">EX / Corrective Fallback</text>
+
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" x="40" y="432" width="1000" height="114" rx="10" class="c-lane" stroke-width="1"/>
+        <text x="54" y="454" class="t-dim" font-size="10" font-weight="600">04 / Response Synthesis</text>
+
+        <!-- Phase Headers -->
+        <line x1="60" y1="32" x2="360" y2="32" class="a-default" stroke-width="1.1"/>
+        <rect x="150" y="24" width="120" height="16" rx="4" class="c-mask"/>
+        <text x="210" y="36" class="t-muted" font-size="8" font-weight="600" text-anchor="middle">Intake &amp; Routing</text>
+
+        <line x1="410" y1="32" x2="710" y2="32" class="a-emphasis" stroke-width="1.1"/>
+        <rect x="490" y="24" width="150" height="16" rx="4" class="c-mask"/>
+        <text x="565" y="36" class="t-backend" font-size="8" font-weight="600" text-anchor="middle">Hybrid Search &amp; Decision</text>
+
+        <line x1="760" y1="32" x2="1020" y2="32" class="a-dashed" stroke-width="1.1"/>
+        <rect x="830" y="24" width="120" height="16" rx="4" class="c-mask"/>
+        <text x="890" y="36" class="t-messagebus" font-size="8" font-weight="600" text-anchor="middle">Synthesis &amp; Output</text>
+
+        <!-- Edge Paths -->
+        <path data-edge-id="edge_intake_route" data-edge-from="user_query" data-edge-to="route_and_condense" d="M 180 102 L 220 102" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-id="edge_route_retrieve" data-edge-from="route_and_condense" data-edge-to="retrieve_documents" d="M 292 134 L 292 235 L 400 235" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-id="edge_route_direct" data-edge-from="route_and_condense" data-edge-to="generate_answer" d="M 365 92 L 850 92 L 850 480 L 890 480" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-id="edge_retrieve_decide" data-edge-from="retrieve_documents" data-edge-to="decide_after_retrieval" d="M 545 235 L 580 235" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-id="edge_decide_generate" data-edge-from="decide_after_retrieval" data-edge-to="generate_answer" d="M 725 235 L 790 235 L 790 495 L 890 495" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-id="edge_decide_fallback" data-edge-from="decide_after_retrieval" data-edge-to="web_search_fallback" d="M 652 265 L 652 340" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-id="edge_fallback_generate" data-edge-from="web_search_fallback" data-edge-to="generate_answer" d="M 725 370 L 820 370 L 820 510 L 890 510" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+
+        <!-- Labels -->
+        <g data-edge-id="edge_intake_route"><rect x="186" y="93" width="28" height="14" rx="3" class="c-mask"/><text x="200" y="103" class="t-muted" font-size="7" text-anchor="middle">init</text></g>
+        <g data-edge-id="edge_route_retrieve"><rect x="300" y="226" width="80" height="15" rx="3" class="c-mask"/><text x="340" y="237" class="t-backend" font-size="8" text-anchor="middle">search required</text></g>
+        <g data-edge-id="edge_route_direct"><rect x="520" y="84" width="130" height="15" rx="3" class="c-mask"/><text x="585" y="95" class="t-messagebus" font-size="8" text-anchor="middle">conversational fast-path</text></g>
+        <g data-edge-id="edge_retrieve_decide"><rect x="548" y="226" width="28" height="15" rx="3" class="c-mask"/><text x="562" y="237" class="t-muted" font-size="8" text-anchor="middle">RRF</text></g>
+        <g data-edge-id="edge_decide_generate"><rect x="710" y="226" width="70" height="15" rx="3" class="c-mask"/><text x="745" y="237" class="t-backend" font-size="8" text-anchor="middle">evidence ok</text></g>
+        <g data-edge-id="edge_decide_fallback"><rect x="605" y="295" width="94" height="15" rx="3" class="c-mask"/><text x="652" y="306" class="t-security" font-size="8" text-anchor="middle">0 chunks found</text></g>
+        <g data-edge-id="edge_fallback_generate"><rect x="735" y="361" width="74" height="15" rx="3" class="c-mask"/><text x="772" y="372" class="t-backend" font-size="8" text-anchor="middle">web snippets</text></g>
+
+        <!-- Nodes -->
+        <g data-node-id="user_query">
+          <rect x="50" y="75" width="130" height="54" rx="6" class="c-mask"/>
+          <rect x="50" y="75" width="130" height="54" rx="6" class="c-external" stroke-width="1.5"/>
+          <text x="115" y="97" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">User Query</text>
+          <text x="115" y="113" class="t-muted" font-size="8" text-anchor="middle">raw input prompt</text>
+          <text x="115" y="123" class="t-backend" font-size="7" text-anchor="middle">thread state</text>
+        </g>
+
+        <g data-node-id="route_and_condense">
+          <rect x="220" y="72" width="145" height="60" rx="6" class="c-mask"/>
+          <rect x="220" y="72" width="145" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
+          <text x="292" y="94" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">route_and_condense</text>
+          <text x="292" y="110" class="t-muted" font-size="8" text-anchor="middle">pronoun resolution</text>
+          <text x="292" y="122" class="t-backend" font-size="7" text-anchor="middle">llama-3.1-8b LPU</text>
+        </g>
+
+        <g data-node-id="retrieve_documents">
+          <rect x="400" y="205" width="145" height="60" rx="6" class="c-mask"/>
+          <rect x="400" y="205" width="145" height="60" rx="6" class="c-database" stroke-width="1.5"/>
+          <text x="472" y="227" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">retrieve_documents</text>
+          <text x="472" y="243" class="t-muted" font-size="8" text-anchor="middle">HNSW + GIN hybrid</text>
+          <text x="472" y="255" class="t-database" font-size="7" text-anchor="middle">RRF k=60 RPC</text>
+        </g>
+
+        <g data-node-id="decide_after_retrieval">
+          <rect x="580" y="205" width="145" height="60" rx="6" class="c-mask"/>
+          <rect x="580" y="205" width="145" height="60" rx="6" class="c-security" stroke-width="1.5"/>
+          <text x="652" y="227" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">decide_after_retrieval</text>
+          <text x="652" y="243" class="t-muted" font-size="8" text-anchor="middle">evidence sufficiency</text>
+          <text x="652" y="255" class="t-security" font-size="7" text-anchor="middle">CRAG router</text>
+        </g>
+
+        <g data-node-id="web_search_fallback">
+          <rect x="580" y="340" width="145" height="60" rx="6" class="c-mask"/>
+          <rect x="580" y="340" width="145" height="60" rx="6" class="c-cloud" stroke-width="1.5"/>
+          <text x="652" y="362" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">web_search_fallback</text>
+          <text x="652" y="378" class="t-muted" font-size="8" text-anchor="middle">DuckDuckGo / Tavily</text>
+          <text x="652" y="390" class="t-cloud" font-size="7" text-anchor="middle">external search</text>
+        </g>
+
+        <g data-node-id="generate_answer">
+          <rect x="890" y="460" width="150" height="64" rx="6" class="c-mask"/>
+          <rect x="890" y="460" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
+          <text x="965" y="482" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">generate_answer</text>
+          <text x="965" y="498" class="t-muted" font-size="8" text-anchor="middle">grounded synthesis</text>
+          <text x="965" y="511" class="t-backend" font-size="7" text-anchor="middle">llama-3.3-70b SSE</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>Finite Bounded FSM</h3>
+        </div>
+        <ul>
+          <li>&bull; Strict acyclic bounds eliminate recursive infinite loops</li>
+          <li>&bull; Checkpointer state engine preserves thread checkpoints across turns</li>
+          <li>&bull; Guaranteed monotonic convergence to terminal generate_answer state</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>LPU Coreference Resolution</h3>
+        </div>
+        <ul>
+          <li>&bull; Multi-turn questions with ambiguous pronouns ('What did it say?') are rewritten</li>
+          <li>&bull; Groq sub-second inference produces standalone search strings before SQL execution</li>
+          <li>&bull; Conversational small-talk bypasses retrieval to preserve low latency</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Autonomous Corrective RAG</h3>
+        </div>
+        <ul>
+          <li>&bull; decide_after_retrieval inspects candidate presence and cross-encoder scores</li>
+          <li>&bull; Zero-evidence state automatically triggers external web fallback</li>
+          <li>&bull; Generated citations audited against source chunk text and UUID references</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script id="archify-guided-views-data" type="application/json">
+    [
+      {
+        "id": "happy-path",
+        "label": "Knowledge Query Retrieval",
+        "focus": ["user_query", "route_and_condense", "retrieve_documents", "decide_after_retrieval", "generate_answer"]
+      },
+      {
+        "id": "direct-path",
+        "label": "Direct Conversational Fast-Path",
+        "focus": ["user_query", "route_and_condense", "generate_answer"]
+      },
+      {
+        "id": "fallback-path",
+        "label": "Corrective Web Search Fallback",
+        "focus": ["decide_after_retrieval", "web_search_fallback", "generate_answer"]
+      }
+    ]
+  </script>
+
+  <script>
+    (function () {
+      var views = JSON.parse(document.getElementById('archify-guided-views-data').textContent);
+      var svg = document.querySelector('svg');
+      var viewBtns = document.querySelectorAll('.guided-view-btn');
+      var themeBtn = document.getElementById('btn-theme');
+
+      themeBtn.addEventListener('click', function () {
+        var current = document.documentElement.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('archify-theme', next);
+      });
+
+      function applyFocus(nodeIds) {
+        if (!nodeIds || nodeIds.length === 0) {
+          svg.removeAttribute('data-focus-active');
+          document.querySelectorAll('[data-node-id], path, g[data-edge-id]').forEach(function (el) {
+            el.classList.remove('focused');
+          });
+          return;
+        }
+        svg.setAttribute('data-focus-active', 'true');
+        var set = new Set(nodeIds);
+        document.querySelectorAll('[data-node-id]').forEach(function (node) {
+          var id = node.getAttribute('data-node-id');
+          if (set.has(id)) node.classList.add('focused');
+          else node.classList.remove('focused');
+        });
+        document.querySelectorAll('path[data-edge-from], g[data-edge-id]').forEach(function (edge) {
+          var from = edge.getAttribute('data-edge-from');
+          var to = edge.getAttribute('data-edge-to');
+          if (!from && edge.querySelector('path')) {
+            var p = edge.querySelector('path');
+            from = p.getAttribute('data-edge-from');
+            to = p.getAttribute('data-edge-to');
+          }
+          if (set.has(from) && set.has(to)) edge.classList.add('focused');
+          else edge.classList.remove('focused');
+        });
+      }
+
+      viewBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          viewBtns.forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          var viewId = btn.getAttribute('data-view');
+          if (viewId === 'all') {
+            applyFocus(null);
+          } else {
+            var target = views.find(function (v) { return v.id === viewId; });
+            if (target) applyFocus(target.focus);
+          }
+        });
+      });
+
+      document.querySelectorAll('[data-node-id]').forEach(function (node) {
+        node.addEventListener('click', function () {
+          var id = node.getAttribute('data-node-id');
+          var connected = new Set([id]);
+          document.querySelectorAll('path[data-edge-from]').forEach(function (p) {
+            var from = p.getAttribute('data-edge-from');
+            var to = p.getAttribute('data-edge-to');
+            if (from === id) connected.add(to);
+            if (to === id) connected.add(from);
+          });
+          applyFocus(Array.from(connected));
+        });
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          applyFocus(null);
+          viewBtns.forEach(function (b) { b.classList.remove('active'); });
+          document.querySelector('[data-view="all"]').classList.add('active');
+        } else if (e.key === 't' || e.key === 'T') {
+          themeBtn.click();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

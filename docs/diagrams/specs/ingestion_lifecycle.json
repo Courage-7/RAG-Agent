@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Document Ingestion Lifecycle",
+    "output": "ingestion_lifecycle.html",
+    "viewBox": [920, 780],
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "acid-intake",
+        "label": "Atomic Intake & Outbox",
+        "focus": ["client", "api", "postgres"],
+        "note": "Multipart document upload staged into PostgreSQL with transactional outbox in a single ACID commit."
+      },
+      {
+        "id": "outbox-dispatch",
+        "label": "SKIP LOCKED Dispatch Loop",
+        "focus": ["dispatcher", "postgres", "redis"],
+        "note": "Background daemon safely claims pending jobs with FOR UPDATE SKIP LOCKED and dispatches to Redis 8."
+      },
+      {
+        "id": "vector-indexing",
+        "label": "Chunking & Vector Ingestion",
+        "focus": ["redis", "worker", "fastembed", "postgres"],
+        "note": "Dramatiq worker normalizes text, generates ONNX embeddings, and populates HNSW and tsvector indexes."
+      }
+    ]
+  },
+  "participants": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Client",
+      "sublabel": "Browser / SDK"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "FastAPI",
+      "sublabel": "Upload Endpoint"
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL 16",
+      "sublabel": "Outbox & Chunks"
+    },
+    {
+      "id": "dispatcher",
+      "type": "backend",
+      "label": "Dispatcher",
+      "sublabel": "Daemon Loop"
+    },
+    {
+      "id": "redis",
+      "type": "messagebus",
+      "label": "Redis 8",
+      "sublabel": "Broker Queue"
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Dramatiq Worker",
+      "sublabel": "CPU Worker Pool"
+    },
+    {
+      "id": "fastembed",
+      "type": "backend",
+      "label": "FastEmbed",
+      "sublabel": "ONNX Model"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 310,
+      "label": "Phase 1: Atomic Intake & Outbox Commit"
+    },
+    {
+      "from": 330,
+      "to": 475,
+      "label": "Phase 2: FOR UPDATE SKIP LOCKED Dispatch"
+    },
+    {
+      "from": 495,
+      "to": 700,
+      "label": "Phase 3: Parsing, Vectorization & Indexing"
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg_upload",
+      "from": "client",
+      "to": "api",
+      "y": 180,
+      "label": "POST /v1/documents/upload (Multipart .pdf/.md/.txt)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg_tx_begin",
+      "from": "api",
+      "to": "postgres",
+      "y": 220,
+      "label": "BEGIN: insert document, staging version, and outbox event",
+      "variant": "security"
+    },
+    {
+      "id": "msg_tx_commit",
+      "from": "postgres",
+      "to": "api",
+      "y": 255,
+      "label": "COMMIT: atomic record persisted with status 'pending'",
+      "variant": "return"
+    },
+    {
+      "id": "msg_upload_ack",
+      "from": "api",
+      "to": "client",
+      "y": 290,
+      "label": "202 Accepted {job_id, document_id, version_id}",
+      "variant": "return"
+    },
+    {
+      "id": "msg_poll_claim",
+      "from": "dispatcher",
+      "to": "postgres",
+      "y": 350,
+      "label": "SELECT FOR UPDATE SKIP LOCKED (batch limit 10)",
+      "variant": "default"
+    },
+    {
+      "id": "msg_poll_claimed",
+      "from": "postgres",
+      "to": "dispatcher",
+      "y": 385,
+      "label": "Yield locked outbox rows without blocking concurrent daemons",
+      "variant": "return"
+    },
+    {
+      "id": "msg_enqueue_broker",
+      "from": "dispatcher",
+      "to": "redis",
+      "y": 420,
+      "label": "Enqueue task payload to default Dramatiq Redis channel",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg_mark_dispatched",
+      "from": "dispatcher",
+      "to": "postgres",
+      "y": 455,
+      "label": "UPDATE job_dispatch_outbox SET dispatched_at = now()",
+      "variant": "dashed"
+    },
+    {
+      "id": "msg_consume_task",
+      "from": "redis",
+      "to": "worker",
+      "y": 510,
+      "label": "Dequeue task (actor: ingest_document_version)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg_pass_chunks",
+      "from": "worker",
+      "to": "fastembed",
+      "y": 555,
+      "label": "Pass text chunks (chunk_size=500, overlap=50)",
+      "variant": "default"
+    },
+    {
+      "id": "msg_return_vectors",
+      "from": "fastembed",
+      "to": "worker",
+      "y": 590,
+      "label": "Return 384-dimensional dense vectors (bge-small-en-v1.5)",
+      "variant": "return"
+    },
+    {
+      "id": "msg_insert_chunks",
+      "from": "worker",
+      "to": "postgres",
+      "y": 630,
+      "label": "INSERT into document_chunks (embedding + tsvector)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg_activate_version",
+      "from": "worker",
+      "to": "postgres",
+      "y": 665,
+      "label": "UPDATE document_versions SET status = 'active'",
+      "variant": "security"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "api",
+      "from": 178,
+      "to": 295,
+      "type": "backend"
+    },
+    {
+      "participant": "postgres",
+      "from": 218,
+      "to": 260,
+      "type": "database"
+    },
+    {
+      "participant": "dispatcher",
+      "from": 345,
+      "to": 460,
+      "type": "backend"
+    },
+    {
+      "participant": "worker",
+      "from": 505,
+      "to": 675,
+      "type": "backend"
+    },
+    {
+      "participant": "fastembed",
+      "from": 550,
+      "to": 595,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Dual-Write Immunity",
+      "items": [
+        "Upload endpoint writes document and outbox in single ACID transaction",
+        "Prevents orphaned files when message brokers or networks crash",
+        "Client receives fast 202 Accepted; heavy parsing runs asynchronously"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Non-Blocking Lock Polling",
+      "items": [
+        "SELECT FOR UPDATE SKIP LOCKED provides clean worker concurrency",
+        "No distributed locks or ZooKeeper required for task scheduling",
+        "Dispatched timestamps prevent double-processing of identical jobs"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Zero-Cost Local Embedding",
+      "items": [
+        "Local ONNX runtime generates bge-small-en embeddings directly on CPU",
+        "Zero external API rate limits, costs, or third-party outage vulnerabilities",
+        "Dual indices (HNSW + GIN tsvector) populated simultaneously on completion"
+      ]
+    }
+  ]
+}

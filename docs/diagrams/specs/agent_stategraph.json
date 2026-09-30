@@ -1,0 +1,206 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "LangGraph Adaptive RAG StateGraph",
+    "output": "agent_stategraph.html",
+    "animation": "trace",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "happy-path",
+        "label": "Knowledge Query Retrieval",
+        "focus": ["user_query", "route_and_condense", "retrieve_documents", "decide_after_retrieval", "generate_answer"],
+        "note": "Follow standard retrieval flow: query condensation -> hybrid search -> evidence evaluation -> grounded generation."
+      },
+      {
+        "id": "direct-path",
+        "label": "Direct Conversational Fast-Path",
+        "focus": ["user_query", "route_and_condense", "generate_answer"],
+        "note": "Conversational greetings and clarifications bypass vector search entirely to reduce latency."
+      },
+      {
+        "id": "fallback-path",
+        "label": "Corrective Web Search Fallback",
+        "focus": ["decide_after_retrieval", "web_search_fallback", "generate_answer"],
+        "note": "When vector index returns zero evidence, autonomous fallback fetches external web context."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "intake", "label": "Intake & Condensation" },
+    { "id": "retrieval", "label": "Retrieval & Rescoring" },
+    { "id": "fallback", "label": "Corrective Fallback", "variant": "exception" },
+    { "id": "synthesis", "label": "Context Synthesis" }
+  ],
+  "phases": [
+    { "id": "phase_intake", "label": "Intake & Routing", "fromCol": 0, "toCol": 1 },
+    { "id": "phase_retrieval", "label": "Hybrid Retrieval & Decision", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "phase_synthesis", "label": "Synthesis & Output", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "grp_condense", "label": "Disambiguation Loop", "lane": "intake", "fromCol": 0, "toCol": 1 },
+    { "id": "grp_eval", "label": "Evidence Gating", "lane": "retrieval", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "grp_fallback", "label": "Autonomous Search", "lane": "fallback", "fromCol": 3, "toCol": 4, "variant": "security" },
+    { "id": "grp_stream", "label": "Token Generation", "lane": "synthesis", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": [
+    "user_query",
+    "route_and_condense",
+    "retrieve_documents",
+    "decide_after_retrieval",
+    "generate_answer"
+  ],
+  "nodes": [
+    {
+      "id": "user_query",
+      "lane": "intake",
+      "col": 0,
+      "type": "external",
+      "label": "User Query Intake",
+      "sublabel": "message + thread ID",
+      "tag": "POST /stream",
+      "width": 136
+    },
+    {
+      "id": "route_and_condense",
+      "lane": "intake",
+      "col": 1,
+      "type": "backend",
+      "label": "route_and_condense",
+      "sublabel": "pronoun resolution",
+      "tag": "LPU llama-3.1-8b",
+      "width": 142
+    },
+    {
+      "id": "retrieve_documents",
+      "lane": "retrieval",
+      "col": 2,
+      "type": "database",
+      "label": "retrieve_documents",
+      "sublabel": "HNSW + GIN hybrid",
+      "tag": "RRF k=60",
+      "width": 142
+    },
+    {
+      "id": "decide_after_retrieval",
+      "lane": "retrieval",
+      "col": 3,
+      "type": "security",
+      "label": "decide_after_retrieval",
+      "sublabel": "evidence sufficiency",
+      "tag": "CRAG gate",
+      "width": 144
+    },
+    {
+      "id": "web_search_fallback",
+      "lane": "fallback",
+      "col": 3,
+      "type": "cloud",
+      "label": "web_search_fallback",
+      "sublabel": "DuckDuckGo / Tavily",
+      "tag": "external tools",
+      "width": 144
+    },
+    {
+      "id": "generate_answer",
+      "lane": "synthesis",
+      "col": 5,
+      "type": "backend",
+      "label": "generate_answer",
+      "sublabel": "grounded answer + citations",
+      "tag": "llama-3.3-70b SSE",
+      "width": 146
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_intake_route",
+      "from": "user_query",
+      "to": "route_and_condense",
+      "label": "state init",
+      "variant": "default"
+    },
+    {
+      "id": "edge_route_retrieve",
+      "from": "route_and_condense",
+      "to": "retrieve_documents",
+      "label": "search required",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge_route_direct",
+      "from": "route_and_condense",
+      "to": "generate_answer",
+      "label": "conversational bypass",
+      "variant": "dashed",
+      "role": "branch",
+      "fromSide": "top",
+      "toSide": "top",
+      "route": "up-channel"
+    },
+    {
+      "id": "edge_retrieve_decide",
+      "from": "retrieve_documents",
+      "to": "decide_after_retrieval",
+      "label": "cross-encoded passages",
+      "variant": "default"
+    },
+    {
+      "id": "edge_decide_generate",
+      "from": "decide_after_retrieval",
+      "to": "generate_answer",
+      "label": "evidence present",
+      "variant": "emphasis"
+    },
+    {
+      "id": "edge_decide_fallback",
+      "from": "decide_after_retrieval",
+      "to": "web_search_fallback",
+      "label": "zero chunks returned",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "edge_fallback_generate",
+      "from": "web_search_fallback",
+      "to": "generate_answer",
+      "label": "external web snippets",
+      "variant": "emphasis",
+      "role": "return",
+      "fromSide": "right",
+      "toSide": "bottom",
+      "route": "bottom-channel"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Deterministic Finite State Machine",
+      "items": [
+        "StateGraph is strictly bounded: prevents unbounded tool recursion loops",
+        "Checkpointer integration preserves multi-turn session state in RAM or SQLite",
+        "Every path monotonically converges to generate_answer and terminal END"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Query Condensation & Adaptive Routing",
+      "items": [
+        "Resolves multi-turn conversational coreference ('What did it cost?')",
+        "Sub-second LPU rewrite generates standalone search terms before SQL execution",
+        "Conversational chit-chat bypasses vector retrieval entirely to save latency"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Corrective RAG (CRAG) Fallback",
+      "items": [
+        "decide_after_retrieval evaluates candidate presence and quality score",
+        "Zero-evidence triggers autonomous web search fallback instead of hallucination",
+        "AST citation verification audits generated citations against verbatim passages"
+      ]
+    }
+  ]
+}

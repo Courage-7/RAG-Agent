@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Transactional Outbox Pattern & Data Flow",
+    "output": "transactional_outbox.html",
+    "viewBox": [1080, 720],
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "intake-acid",
+        "label": "Atomic Ingestion Boundary",
+        "focus": ["client", "fastapi", "docs_table", "outbox_table"],
+        "note": "Document metadata and outbox records committed in a single ACID transaction to guarantee dual-write immunity."
+      },
+      {
+        "id": "dispatch-loop",
+        "label": "SKIP LOCKED Dispatch",
+        "focus": ["outbox_table", "dispatcher", "redis"],
+        "note": "Polling daemon claims pending outbox rows safely using PostgreSQL concurrency primitives."
+      },
+      {
+        "id": "worker-indexing",
+        "label": "Asynchronous Vector Indexing",
+        "focus": ["redis", "worker", "fastembed", "chunks_table"],
+        "note": "Workers consume tasks, generate local ONNX vectors, and populate HNSW and GIN indexes."
+      }
+    ]
+  },
+  "stages": [
+    { "label": "Client Intake" },
+    { "label": "ACID Boundary" },
+    { "label": "Dispatch Daemon" },
+    { "label": "Worker Execution" },
+    { "label": "Durable Storage" }
+  ],
+  "nodes": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Client Upload",
+      "sublabel": "Multipart File",
+      "stage": 0,
+      "row": 1,
+      "tag": "HTTP 202"
+    },
+    {
+      "id": "fastapi",
+      "type": "backend",
+      "label": "FastAPI Ingest",
+      "sublabel": "Unit of Work",
+      "stage": 1,
+      "row": 1,
+      "tag": "SQLAlchemy"
+    },
+    {
+      "id": "docs_table",
+      "type": "database",
+      "label": "documents Table",
+      "sublabel": "metadata & version",
+      "stage": 1,
+      "row": 0,
+      "tag": "PostgreSQL 16"
+    },
+    {
+      "id": "outbox_table",
+      "type": "database",
+      "label": "job_dispatch_outbox",
+      "sublabel": "event queue",
+      "stage": 1,
+      "row": 2,
+      "tag": "status: pending"
+    },
+    {
+      "id": "dispatcher",
+      "type": "backend",
+      "label": "Outbox Dispatcher",
+      "sublabel": "SKIP LOCKED",
+      "stage": 2,
+      "row": 2,
+      "tag": "Polling Loop"
+    },
+    {
+      "id": "redis",
+      "type": "messagebus",
+      "label": "Redis 8 Broker",
+      "sublabel": "dramatiq:default",
+      "stage": 3,
+      "row": 1,
+      "tag": "In-Memory Queue"
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Dramatiq Worker",
+      "sublabel": "chunking pipeline",
+      "stage": 3,
+      "row": 3,
+      "tag": "Actor Process"
+    },
+    {
+      "id": "fastembed",
+      "type": "backend",
+      "label": "FastEmbed ONNX",
+      "sublabel": "bge-small-en-v1.5",
+      "stage": 4,
+      "row": 1,
+      "tag": "Dense 384d"
+    },
+    {
+      "id": "chunks_table",
+      "type": "database",
+      "label": "document_chunks",
+      "sublabel": "HNSW + GIN tsvector",
+      "stage": 4,
+      "row": 3,
+      "tag": "Vector Store"
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow_client_api",
+      "from": "client",
+      "to": "fastapi",
+      "label": "multipart upload",
+      "classification": "stream payload",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "id": "flow_api_docs",
+      "from": "fastapi",
+      "to": "docs_table",
+      "label": "commit metadata",
+      "classification": "ACID transaction",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "route": "straight"
+    },
+    {
+      "id": "flow_api_outbox",
+      "from": "fastapi",
+      "to": "outbox_table",
+      "label": "stage outbox event",
+      "classification": "ACID transaction",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight"
+    },
+    {
+      "id": "flow_outbox_dispatcher",
+      "from": "outbox_table",
+      "to": "dispatcher",
+      "label": "claim pending batch",
+      "classification": "SKIP LOCKED",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "id": "flow_dispatcher_redis",
+      "from": "dispatcher",
+      "to": "redis",
+      "label": "enqueue task payload",
+      "classification": "broker channel",
+      "variant": "default",
+      "fromSide": "top",
+      "toSide": "left",
+      "via": [[530, 242]]
+    },
+    {
+      "id": "flow_redis_worker",
+      "from": "redis",
+      "to": "worker",
+      "label": "consume task message",
+      "classification": "Dramatiq consumer",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight"
+    },
+    {
+      "id": "flow_worker_fastembed",
+      "from": "worker",
+      "to": "fastembed",
+      "label": "pass 500-token chunks",
+      "classification": "parsed text",
+      "variant": "default",
+      "fromSide": "right",
+      "toSide": "left",
+      "via": [[852, 470], [852, 242]]
+    },
+    {
+      "id": "flow_fastembed_chunks",
+      "from": "fastembed",
+      "to": "chunks_table",
+      "label": "write vectors + tsvector",
+      "classification": "HNSW cosine insert",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "straight"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Dual-Write Immunity",
+      "items": [
+        "Eliminates distributed state divergence between SQL and vector stores",
+        "Document metadata and outbox records committed in a single atomic transaction",
+        "If the network or broker fails during upload, zero ghost records are created"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "PostgreSQL FOR UPDATE SKIP LOCKED",
+      "items": [
+        "Dispatcher daemon polls private.job_dispatch_outbox without table locks",
+        "Multiple dispatchers can run concurrently without race conditions or deadlocks",
+        "Events are marked dispatched_at = now() only after Redis broker confirms publish"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "CPU-Optimized Ingestion Pipeline",
+      "items": [
+        "Dramatiq worker pools execute PyPDF and Markdown semantic text chunking",
+        "FastEmbed runs local BAAI/bge-small-en-v1.5 ONNX model on CPU (384 dimensions)",
+        "document_chunks table simultaneously updates HNSW vector index and BM25 tsvector GIN index"
+      ]
+    }
+  ]
+}
