@@ -1,73 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 620" role="img" lang="en" aria-labelledby="stategraph-title" data-quality-profile="showcase">
-  <style>
+    <style>
+  <![CDATA[
     :root {
       --bg: #ffffff;
-      --grid: #f1f5f9;
       --text: #0f172a;
       --text-muted: #334155;
       --text-dim: #475569;
-      --text-faint: #64748b;
-      --panel: #ffffff;
-      --panel-border: #cbd5e1;
-      --lane-fill: #f8fafc;
+      --border: #cbd5e1;
+      --lane-bg: #f8fafc;
       --lane-stroke: #cbd5e1;
       --arrow: #334155;
       --arrow-emphasis: #059669;
       --mask: #ffffff;
-      --frontend-fill: #f0f9ff;
-      --frontend-stroke: #0284c7;
-      --backend-fill: #ecfdf5;
-      --backend-stroke: #059669;
-      --database-fill: #f5f3ff;
-      --database-stroke: #7c3aed;
-      --cloud-fill: #fffbeb;
-      --cloud-stroke: #b45309;
-      --security-fill: #fff1f2;
-      --security-stroke: #e11d48;
-      --messagebus-fill: #fff7ed;
-      --messagebus-stroke: #c2410c;
-      --external-fill: #f8fafc;
-      --external-stroke: #475569;
     }
 
-    /* Base Elements */
+    /* Typography */
     text {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      text-rendering: geometricPrecision;
     }
+
+    /* Backgrounds and Frames */
     .c-bg { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
     .c-grid { stroke: #f1f5f9; fill: none; stroke-width: 1; }
     .c-mask { fill: #ffffff; stroke: none; }
+    .c-lane { fill: #f8fafc !important; stroke: #cbd5e1 !important; stroke-width: 1.5; }
+    .node-box { stroke-width: 1.5; }
 
-    /* Node Fills &amp; High-Contrast Borders */
-    .c-frontend { fill: #f0f9ff; stroke: #0284c7; stroke-width: 1.5; }
-    .c-backend { fill: #ecfdf5; stroke: #059669; stroke-width: 1.5; }
-    .c-database { fill: #f5f3ff; stroke: #7c3aed; stroke-width: 1.5; }
-    .c-cloud { fill: #fffbeb; stroke: #b45309; stroke-width: 1.5; }
-    .c-security { fill: #fff1f2; stroke: #e11d48; stroke-width: 1.5; }
-    .c-messagebus { fill: #fff7ed; stroke: #c2410c; stroke-width: 1.5; }
-    .c-external { fill: #f8fafc; stroke: #475569; stroke-width: 1.5; }
-    .c-region { fill: rgba(180, 83, 9, 0.04); stroke: #b45309; stroke-dasharray: 6,4; stroke-width: 1.5; }
-    .c-security-group { fill: transparent; stroke: #e11d48; stroke-dasharray: 4,4; stroke-width: 1.5; }
+    /* Node Category Fills and Crisp Borders */
+    .c-frontend { fill: #f0f9ff !important; stroke: #0284c7 !important; stroke-width: 1.5; }
+    .c-backend { fill: #ecfdf5 !important; stroke: #059669 !important; stroke-width: 1.5; }
+    .c-database { fill: #f5f3ff !important; stroke: #7c3aed !important; stroke-width: 1.5; }
+    .c-cloud { fill: #fffbeb !important; stroke: #b45309 !important; stroke-width: 1.5; }
+    .c-security { fill: #fff1f2 !important; stroke: #e11d48 !important; stroke-width: 1.5; }
+    .c-messagebus { fill: #fff7ed !important; stroke: #c2410c !important; stroke-width: 1.5; }
+    .c-external { fill: #f8fafc !important; stroke: #475569 !important; stroke-width: 1.5; }
+    .c-region { fill: rgba(180, 83, 9, 0.04) !important; stroke: #b45309 !important; stroke-dasharray: 6,4; stroke-width: 1.5; }
+    .c-security-group { fill: transparent !important; stroke: #e11d48 !important; stroke-dasharray: 4,4; stroke-width: 1.5; }
 
-    /* Crisp Arrows &amp; Connectors */
-    .a-default { stroke: #334155; fill: none; stroke-width: 1.75; }
-    .a-emphasis { stroke: #059669; fill: none; stroke-width: 2; }
-    .a-security { stroke: #e11d48; fill: none; stroke-width: 1.75; }
-    .a-dashed { stroke: #c2410c; fill: none; stroke-dasharray: 5,4; stroke-width: 1.75; }
-    .m-default { fill: #334155; }
-    .m-emphasis { fill: #059669; }
-    .m-security { fill: #e11d48; }
-    .m-dashed { fill: #c2410c; }
+    /* Connectors and Arrows */
+    .a-default { stroke: #334155 !important; fill: none; stroke-width: 1.75; }
+    .a-emphasis { stroke: #059669 !important; fill: none; stroke-width: 2; }
+    .a-security { stroke: #e11d48 !important; fill: none; stroke-width: 1.75; }
+    .a-dashed { stroke: #c2410c !important; fill: none; stroke-dasharray: 5,4; stroke-width: 1.75; }
+    .a-return { stroke: #475569 !important; fill: none; stroke-dasharray: 5,5; stroke-width: 1.5; }
+    .m-default { fill: #334155 !important; }
+    .m-emphasis { fill: #059669 !important; }
+    .m-security { fill: #e11d48 !important; }
+    .m-dashed { fill: #c2410c !important; }
+
+    /* Activation Bars in Sequence Diagrams */
+    .activation-bar { stroke-width: 1; }
 
     /* High-Contrast Pitch-Dark Text */
-    .t-primary { fill: #0f172a; font-weight: 600; }
-    .t-muted { fill: #334155; font-weight: 500; }
-    .t-dim { fill: #475569; }
-    .t-backend { fill: #047857; font-weight: 600; }
-    .t-cloud { fill: #b45309; font-weight: 600; }
-    .t-security { fill: #be123c; font-weight: 600; }
-    .t-database { fill: #6d28d9; font-weight: 600; }
-    .t-messagebus { fill: #c2410c; font-weight: 600; }
+    .t-primary { fill: #0f172a !important; font-weight: 600; }
+    .t-muted { fill: #334155 !important; font-weight: 500; }
+    .t-dim { fill: #334155 !important; font-weight: 600; }
+    .t-backend { fill: #047857 !important; font-weight: 600; }
+    .t-cloud { fill: #b45309 !important; font-weight: 600; }
+    .t-security { fill: #be123c !important; font-weight: 600; }
+    .t-database { fill: #6d28d9 !important; font-weight: 600; }
+    .t-messagebus { fill: #c2410c !important; font-weight: 600; }
+  ]]>
   </style>
   <rect width="100%" height="100%" class="c-bg" rx="10" />
 
@@ -94,30 +88,30 @@
 
         <!-- Swimlanes -->
         <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" x="40" y="48" width="1000" height="108" rx="10" class="c-lane" stroke-width="1"/>
-        <text x="54" y="70" class="t-dim" font-size="10" font-weight="600">01 / Intake &amp; Condensation</text>
+        <text x="54" y="70" class="t-dim" font-size="13" font-weight="600">01 / Intake &amp; Condensation</text>
 
         <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" x="40" y="172" width="1000" height="114" rx="10" class="c-lane" stroke-width="1"/>
-        <text x="54" y="194" class="t-dim" font-size="10" font-weight="600">02 / Retrieval &amp; Evaluation</text>
+        <text x="54" y="194" class="t-dim" font-size="13" font-weight="600">02 / Retrieval &amp; Evaluation</text>
 
         <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" x="40" y="302" width="1000" height="114" rx="10" class="c-lane" stroke-width="1"/>
         <rect data-graph-role="structural-frame" data-composition-frame-kind="exception-lane" x="46" y="308" width="988" height="102" rx="8" class="c-security-group" stroke-width="1"/>
-        <text x="54" y="324" class="t-security" font-size="10" font-weight="600">EX / Corrective Fallback</text>
+        <text x="54" y="324" class="t-security" font-size="13" font-weight="600">EX / Corrective Fallback</text>
 
         <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" x="40" y="432" width="1000" height="114" rx="10" class="c-lane" stroke-width="1"/>
-        <text x="54" y="454" class="t-dim" font-size="10" font-weight="600">04 / Response Synthesis</text>
+        <text x="54" y="454" class="t-dim" font-size="13" font-weight="600">04 / Response Synthesis</text>
 
         <!-- Phase Headers -->
         <line x1="60" y1="32" x2="360" y2="32" class="a-default" stroke-width="1.1"/>
         <rect x="150" y="24" width="120" height="16" rx="4" class="c-mask"/>
-        <text x="210" y="36" class="t-muted" font-size="8" font-weight="600" text-anchor="middle">Intake &amp; Routing</text>
+        <text x="210" y="36" class="t-muted" font-size="12" font-weight="600" text-anchor="middle">Intake &amp; Routing</text>
 
         <line x1="410" y1="32" x2="710" y2="32" class="a-emphasis" stroke-width="1.1"/>
         <rect x="490" y="24" width="150" height="16" rx="4" class="c-mask"/>
-        <text x="565" y="36" class="t-backend" font-size="8" font-weight="600" text-anchor="middle">Hybrid Search &amp; Decision</text>
+        <text x="565" y="36" class="t-backend" font-size="12" font-weight="600" text-anchor="middle">Hybrid Search &amp; Decision</text>
 
         <line x1="760" y1="32" x2="1020" y2="32" class="a-dashed" stroke-width="1.1"/>
         <rect x="830" y="24" width="120" height="16" rx="4" class="c-mask"/>
-        <text x="890" y="36" class="t-messagebus" font-size="8" font-weight="600" text-anchor="middle">Synthesis &amp; Output</text>
+        <text x="890" y="36" class="t-messagebus" font-size="12" font-weight="600" text-anchor="middle">Synthesis &amp; Output</text>
 
         <!-- Edge Paths -->
         <path data-edge-id="edge_intake_route" data-edge-from="user_query" data-edge-to="route_and_condense" d="M 180 102 L 220 102" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
@@ -130,19 +124,19 @@
 
         <!-- Labels -->
         <g data-edge-id="edge_intake_route"><rect x="186" y="93" width="28" height="14" rx="3" class="c-mask"/><text x="200" y="103" class="t-muted" font-size="7" text-anchor="middle">init</text></g>
-        <g data-edge-id="edge_route_retrieve"><rect x="300" y="226" width="80" height="15" rx="3" class="c-mask"/><text x="340" y="237" class="t-backend" font-size="8" text-anchor="middle">search required</text></g>
-        <g data-edge-id="edge_route_direct"><rect x="520" y="84" width="130" height="15" rx="3" class="c-mask"/><text x="585" y="95" class="t-messagebus" font-size="8" text-anchor="middle">conversational fast-path</text></g>
-        <g data-edge-id="edge_retrieve_decide"><rect x="548" y="226" width="28" height="15" rx="3" class="c-mask"/><text x="562" y="237" class="t-muted" font-size="8" text-anchor="middle">RRF</text></g>
-        <g data-edge-id="edge_decide_generate"><rect x="710" y="226" width="70" height="15" rx="3" class="c-mask"/><text x="745" y="237" class="t-backend" font-size="8" text-anchor="middle">evidence ok</text></g>
-        <g data-edge-id="edge_decide_fallback"><rect x="605" y="295" width="94" height="15" rx="3" class="c-mask"/><text x="652" y="306" class="t-security" font-size="8" text-anchor="middle">0 chunks found</text></g>
-        <g data-edge-id="edge_fallback_generate"><rect x="735" y="361" width="74" height="15" rx="3" class="c-mask"/><text x="772" y="372" class="t-backend" font-size="8" text-anchor="middle">web snippets</text></g>
+        <g data-edge-id="edge_route_retrieve"><rect x="300" y="226" width="80" height="15" rx="3" class="c-mask"/><text x="340" y="237" class="t-backend" font-size="12" text-anchor="middle">search required</text></g>
+        <g data-edge-id="edge_route_direct"><rect x="520" y="84" width="130" height="15" rx="3" class="c-mask"/><text x="585" y="95" class="t-messagebus" font-size="12" text-anchor="middle">conversational fast-path</text></g>
+        <g data-edge-id="edge_retrieve_decide"><rect x="548" y="226" width="28" height="15" rx="3" class="c-mask"/><text x="562" y="237" class="t-muted" font-size="12" text-anchor="middle">RRF</text></g>
+        <g data-edge-id="edge_decide_generate"><rect x="710" y="226" width="70" height="15" rx="3" class="c-mask"/><text x="745" y="237" class="t-backend" font-size="12" text-anchor="middle">evidence ok</text></g>
+        <g data-edge-id="edge_decide_fallback"><rect x="605" y="295" width="94" height="15" rx="3" class="c-mask"/><text x="652" y="306" class="t-security" font-size="12" text-anchor="middle">0 chunks found</text></g>
+        <g data-edge-id="edge_fallback_generate"><rect x="735" y="361" width="74" height="15" rx="3" class="c-mask"/><text x="772" y="372" class="t-backend" font-size="12" text-anchor="middle">web snippets</text></g>
 
         <!-- Nodes -->
         <g data-node-id="user_query">
           <rect x="50" y="75" width="130" height="54" rx="6" class="c-mask"/>
           <rect x="50" y="75" width="130" height="54" rx="6" class="c-external" stroke-width="1.5"/>
           <text x="115" y="97" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">User Query</text>
-          <text x="115" y="113" class="t-muted" font-size="8" text-anchor="middle">raw input prompt</text>
+          <text x="115" y="113" class="t-muted" font-size="12" text-anchor="middle">raw input prompt</text>
           <text x="115" y="123" class="t-backend" font-size="7" text-anchor="middle">thread state</text>
         </g>
 
@@ -150,7 +144,7 @@
           <rect x="220" y="72" width="145" height="60" rx="6" class="c-mask"/>
           <rect x="220" y="72" width="145" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
           <text x="292" y="94" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">route_and_condense</text>
-          <text x="292" y="110" class="t-muted" font-size="8" text-anchor="middle">pronoun resolution</text>
+          <text x="292" y="110" class="t-muted" font-size="12" text-anchor="middle">pronoun resolution</text>
           <text x="292" y="122" class="t-backend" font-size="7" text-anchor="middle">llama-3.1-8b LPU</text>
         </g>
 
@@ -158,23 +152,23 @@
           <rect x="400" y="205" width="145" height="60" rx="6" class="c-mask"/>
           <rect x="400" y="205" width="145" height="60" rx="6" class="c-database" stroke-width="1.5"/>
           <text x="472" y="227" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">retrieve_documents</text>
-          <text x="472" y="243" class="t-muted" font-size="8" text-anchor="middle">HNSW + GIN hybrid</text>
+          <text x="472" y="243" class="t-muted" font-size="12" text-anchor="middle">HNSW + GIN hybrid</text>
           <text x="472" y="255" class="t-database" font-size="7" text-anchor="middle">RRF k=60 RPC</text>
         </g>
 
         <g data-node-id="decide_after_retrieval">
           <rect x="580" y="205" width="145" height="60" rx="6" class="c-mask"/>
           <rect x="580" y="205" width="145" height="60" rx="6" class="c-security" stroke-width="1.5"/>
-          <text x="652" y="227" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">decide_after_retrieval</text>
-          <text x="652" y="243" class="t-muted" font-size="8" text-anchor="middle">evidence sufficiency</text>
+          <text x="652" y="227" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">decide_after_retrieval</text>
+          <text x="652" y="243" class="t-muted" font-size="12" text-anchor="middle">evidence sufficiency</text>
           <text x="652" y="255" class="t-security" font-size="7" text-anchor="middle">CRAG router</text>
         </g>
 
         <g data-node-id="web_search_fallback">
           <rect x="580" y="340" width="145" height="60" rx="6" class="c-mask"/>
           <rect x="580" y="340" width="145" height="60" rx="6" class="c-cloud" stroke-width="1.5"/>
-          <text x="652" y="362" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">web_search_fallback</text>
-          <text x="652" y="378" class="t-muted" font-size="8" text-anchor="middle">DuckDuckGo / Tavily</text>
+          <text x="652" y="362" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">web_search_fallback</text>
+          <text x="652" y="378" class="t-muted" font-size="12" text-anchor="middle">DuckDuckGo / Tavily</text>
           <text x="652" y="390" class="t-cloud" font-size="7" text-anchor="middle">external search</text>
         </g>
 
@@ -182,7 +176,7 @@
           <rect x="890" y="460" width="150" height="64" rx="6" class="c-mask"/>
           <rect x="890" y="460" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
           <text x="965" y="482" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">generate_answer</text>
-          <text x="965" y="498" class="t-muted" font-size="8" text-anchor="middle">grounded synthesis</text>
+          <text x="965" y="498" class="t-muted" font-size="12" text-anchor="middle">grounded synthesis</text>
           <text x="965" y="511" class="t-backend" font-size="7" text-anchor="middle">llama-3.3-70b SSE</text>
         </g>
       </svg>

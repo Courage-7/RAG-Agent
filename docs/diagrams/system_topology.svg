@@ -1,73 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 620" role="img" lang="en" aria-labelledby="diagram-title" data-quality-profile="showcase">
-  <style>
+    <style>
+  <![CDATA[
     :root {
       --bg: #ffffff;
-      --grid: #f1f5f9;
       --text: #0f172a;
       --text-muted: #334155;
       --text-dim: #475569;
-      --text-faint: #64748b;
-      --panel: #ffffff;
-      --panel-border: #cbd5e1;
-      --lane-fill: #f8fafc;
+      --border: #cbd5e1;
+      --lane-bg: #f8fafc;
       --lane-stroke: #cbd5e1;
       --arrow: #334155;
       --arrow-emphasis: #059669;
       --mask: #ffffff;
-      --frontend-fill: #f0f9ff;
-      --frontend-stroke: #0284c7;
-      --backend-fill: #ecfdf5;
-      --backend-stroke: #059669;
-      --database-fill: #f5f3ff;
-      --database-stroke: #7c3aed;
-      --cloud-fill: #fffbeb;
-      --cloud-stroke: #b45309;
-      --security-fill: #fff1f2;
-      --security-stroke: #e11d48;
-      --messagebus-fill: #fff7ed;
-      --messagebus-stroke: #c2410c;
-      --external-fill: #f8fafc;
-      --external-stroke: #475569;
     }
 
-    /* Base Elements */
+    /* Typography */
     text {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      text-rendering: geometricPrecision;
     }
+
+    /* Backgrounds and Frames */
     .c-bg { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
     .c-grid { stroke: #f1f5f9; fill: none; stroke-width: 1; }
     .c-mask { fill: #ffffff; stroke: none; }
+    .c-lane { fill: #f8fafc !important; stroke: #cbd5e1 !important; stroke-width: 1.5; }
+    .node-box { stroke-width: 1.5; }
 
-    /* Node Fills &amp; High-Contrast Borders */
-    .c-frontend { fill: #f0f9ff; stroke: #0284c7; stroke-width: 1.5; }
-    .c-backend { fill: #ecfdf5; stroke: #059669; stroke-width: 1.5; }
-    .c-database { fill: #f5f3ff; stroke: #7c3aed; stroke-width: 1.5; }
-    .c-cloud { fill: #fffbeb; stroke: #b45309; stroke-width: 1.5; }
-    .c-security { fill: #fff1f2; stroke: #e11d48; stroke-width: 1.5; }
-    .c-messagebus { fill: #fff7ed; stroke: #c2410c; stroke-width: 1.5; }
-    .c-external { fill: #f8fafc; stroke: #475569; stroke-width: 1.5; }
-    .c-region { fill: rgba(180, 83, 9, 0.04); stroke: #b45309; stroke-dasharray: 6,4; stroke-width: 1.5; }
-    .c-security-group { fill: transparent; stroke: #e11d48; stroke-dasharray: 4,4; stroke-width: 1.5; }
+    /* Node Category Fills and Crisp Borders */
+    .c-frontend { fill: #f0f9ff !important; stroke: #0284c7 !important; stroke-width: 1.5; }
+    .c-backend { fill: #ecfdf5 !important; stroke: #059669 !important; stroke-width: 1.5; }
+    .c-database { fill: #f5f3ff !important; stroke: #7c3aed !important; stroke-width: 1.5; }
+    .c-cloud { fill: #fffbeb !important; stroke: #b45309 !important; stroke-width: 1.5; }
+    .c-security { fill: #fff1f2 !important; stroke: #e11d48 !important; stroke-width: 1.5; }
+    .c-messagebus { fill: #fff7ed !important; stroke: #c2410c !important; stroke-width: 1.5; }
+    .c-external { fill: #f8fafc !important; stroke: #475569 !important; stroke-width: 1.5; }
+    .c-region { fill: rgba(180, 83, 9, 0.04) !important; stroke: #b45309 !important; stroke-dasharray: 6,4; stroke-width: 1.5; }
+    .c-security-group { fill: transparent !important; stroke: #e11d48 !important; stroke-dasharray: 4,4; stroke-width: 1.5; }
 
-    /* Crisp Arrows &amp; Connectors */
-    .a-default { stroke: #334155; fill: none; stroke-width: 1.75; }
-    .a-emphasis { stroke: #059669; fill: none; stroke-width: 2; }
-    .a-security { stroke: #e11d48; fill: none; stroke-width: 1.75; }
-    .a-dashed { stroke: #c2410c; fill: none; stroke-dasharray: 5,4; stroke-width: 1.75; }
-    .m-default { fill: #334155; }
-    .m-emphasis { fill: #059669; }
-    .m-security { fill: #e11d48; }
-    .m-dashed { fill: #c2410c; }
+    /* Connectors and Arrows */
+    .a-default { stroke: #334155 !important; fill: none; stroke-width: 1.75; }
+    .a-emphasis { stroke: #059669 !important; fill: none; stroke-width: 2; }
+    .a-security { stroke: #e11d48 !important; fill: none; stroke-width: 1.75; }
+    .a-dashed { stroke: #c2410c !important; fill: none; stroke-dasharray: 5,4; stroke-width: 1.75; }
+    .a-return { stroke: #475569 !important; fill: none; stroke-dasharray: 5,5; stroke-width: 1.5; }
+    .m-default { fill: #334155 !important; }
+    .m-emphasis { fill: #059669 !important; }
+    .m-security { fill: #e11d48 !important; }
+    .m-dashed { fill: #c2410c !important; }
+
+    /* Activation Bars in Sequence Diagrams */
+    .activation-bar { stroke-width: 1; }
 
     /* High-Contrast Pitch-Dark Text */
-    .t-primary { fill: #0f172a; font-weight: 600; }
-    .t-muted { fill: #334155; font-weight: 500; }
-    .t-dim { fill: #475569; }
-    .t-backend { fill: #047857; font-weight: 600; }
-    .t-cloud { fill: #b45309; font-weight: 600; }
-    .t-security { fill: #be123c; font-weight: 600; }
-    .t-database { fill: #6d28d9; font-weight: 600; }
-    .t-messagebus { fill: #c2410c; font-weight: 600; }
+    .t-primary { fill: #0f172a !important; font-weight: 600; }
+    .t-muted { fill: #334155 !important; font-weight: 500; }
+    .t-dim { fill: #334155 !important; font-weight: 600; }
+    .t-backend { fill: #047857 !important; font-weight: 600; }
+    .t-cloud { fill: #b45309 !important; font-weight: 600; }
+    .t-security { fill: #be123c !important; font-weight: 600; }
+    .t-database { fill: #6d28d9 !important; font-weight: 600; }
+    .t-messagebus { fill: #c2410c !important; font-weight: 600; }
+  ]]>
   </style>
   <rect width="100%" height="100%" class="c-bg" rx="10" />
 
@@ -96,19 +90,19 @@
         <rect data-graph-role="structural-frame" data-composition-frame-kind="region" x="205" y="290" width="675" height="285" rx="12" class="c-region" stroke-width="1"/>
         <g data-graph-role="structural-frame-label">
           <rect x="215" y="278" width="220" height="18" rx="4" class="c-mask"/>
-          <text x="222" y="291" class="t-cloud" font-size="9" font-weight="600">Asynchronous Ingestion Subsystem</text>
+          <text x="222" y="291" class="t-cloud" font-size="13" font-weight="600">Asynchronous Ingestion Subsystem</text>
         </g>
 
         <rect data-graph-role="structural-frame" data-composition-frame-kind="security-group" x="205" y="120" width="430" height="125" rx="8" class="c-security-group" stroke-width="1"/>
         <g data-graph-role="structural-frame-label">
           <rect x="215" y="108" width="200" height="18" rx="4" class="c-mask"/>
-          <text x="222" y="121" class="t-security" font-size="9" font-weight="600">API Gateway &amp; Reasoning Core (:8000)</text>
+          <text x="222" y="121" class="t-security" font-size="13" font-weight="600">API Gateway &amp; Reasoning Core (:8000)</text>
         </g>
 
         <rect data-graph-role="structural-frame" data-composition-frame-kind="security-group" x="430" y="295" width="205" height="120" rx="8" class="c-security-group" stroke-width="1"/>
         <g data-graph-role="structural-frame-label">
           <rect x="440" y="283" width="180" height="18" rx="4" class="c-mask"/>
-          <text x="447" y="296" class="t-database" font-size="9" font-weight="600">Durable Vector Store (:5432)</text>
+          <text x="447" y="296" class="t-database" font-size="13" font-weight="600">Durable Vector Store (:5432)</text>
         </g>
 
         <!-- Connection Paths -->
@@ -125,24 +119,24 @@
         <path data-edge-id="fastembed-to-postgres" data-edge-from="fastembed" data-edge-to="postgres" d="M 760 480 L 760 435 L 550 435 L 550 393" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
 
         <!-- Labels -->
-        <g data-edge-id="client-to-api"><rect x="172" y="172" width="46" height="15" rx="3" class="c-mask"/><text x="195" y="183" class="t-backend" font-size="8" text-anchor="middle">POST/SSE</text></g>
-        <g data-edge-id="api-to-langgraph"><rect x="385" y="172" width="50" height="15" rx="3" class="c-mask"/><text x="410" y="183" class="t-muted" font-size="8" text-anchor="middle">invoke state</text></g>
-        <g data-edge-id="langgraph-to-groq"><rect x="618" y="172" width="54" height="15" rx="3" class="c-mask"/><text x="645" y="183" class="t-backend" font-size="8" text-anchor="middle">LPU prompt</text></g>
-        <g data-edge-id="langgraph-to-postgres"><rect x="495" y="260" width="60" height="15" rx="3" class="c-mask"/><text x="525" y="271" class="t-muted" font-size="8" text-anchor="middle">hybrid RPC</text></g>
-        <g data-edge-id="postgres-to-flashrank"><rect x="615" y="349" width="60" height="15" rx="3" class="c-mask"/><text x="645" y="360" class="t-muted" font-size="8" text-anchor="middle">top-20 RRF</text></g>
-        <g data-edge-id="flashrank-to-langgraph"><rect x="630" y="252" width="68" height="15" rx="3" class="c-mask"/><text x="664" y="263" class="t-messagebus" font-size="8" text-anchor="middle">top-5 rescored</text></g>
-        <g data-edge-id="api-to-dispatcher"><rect x="270" y="260" width="60" height="15" rx="3" class="c-mask"/><text x="300" y="271" class="t-security" font-size="8" text-anchor="middle">ACID outbox</text></g>
-        <g data-edge-id="dispatcher-to-redis"><rect x="268" y="427" width="64" height="15" rx="3" class="c-mask"/><text x="300" y="438" class="t-muted" font-size="8" text-anchor="middle">enqueue task</text></g>
-        <g data-edge-id="redis-to-dramatiq"><rect x="382" y="502" width="56" height="15" rx="3" class="c-mask"/><text x="410" y="513" class="t-muted" font-size="8" text-anchor="middle">pull chunk</text></g>
-        <g data-edge-id="dramatiq-to-fastembed"><rect x="618" y="502" width="54" height="15" rx="3" class="c-mask"/><text x="645" y="513" class="t-muted" font-size="8" text-anchor="middle">ONNX embed</text></g>
-        <g data-edge-id="fastembed-to-postgres"><rect x="625" y="427" width="68" height="15" rx="3" class="c-mask"/><text x="659" y="438" class="t-backend" font-size="8" text-anchor="middle">insert vectors</text></g>
+        <g data-edge-id="client-to-api"><rect x="172" y="172" width="46" height="15" rx="3" class="c-mask"/><text x="195" y="183" class="t-backend" font-size="12" text-anchor="middle">POST/SSE</text></g>
+        <g data-edge-id="api-to-langgraph"><rect x="385" y="172" width="50" height="15" rx="3" class="c-mask"/><text x="410" y="183" class="t-muted" font-size="12" text-anchor="middle">invoke state</text></g>
+        <g data-edge-id="langgraph-to-groq"><rect x="618" y="172" width="54" height="15" rx="3" class="c-mask"/><text x="645" y="183" class="t-backend" font-size="12" text-anchor="middle">LPU prompt</text></g>
+        <g data-edge-id="langgraph-to-postgres"><rect x="495" y="260" width="60" height="15" rx="3" class="c-mask"/><text x="525" y="271" class="t-muted" font-size="12" text-anchor="middle">hybrid RPC</text></g>
+        <g data-edge-id="postgres-to-flashrank"><rect x="615" y="349" width="60" height="15" rx="3" class="c-mask"/><text x="645" y="360" class="t-muted" font-size="12" text-anchor="middle">top-20 RRF</text></g>
+        <g data-edge-id="flashrank-to-langgraph"><rect x="630" y="252" width="68" height="15" rx="3" class="c-mask"/><text x="664" y="263" class="t-messagebus" font-size="12" text-anchor="middle">top-5 rescored</text></g>
+        <g data-edge-id="api-to-dispatcher"><rect x="270" y="260" width="60" height="15" rx="3" class="c-mask"/><text x="300" y="271" class="t-security" font-size="12" text-anchor="middle">ACID outbox</text></g>
+        <g data-edge-id="dispatcher-to-redis"><rect x="268" y="427" width="64" height="15" rx="3" class="c-mask"/><text x="300" y="438" class="t-muted" font-size="12" text-anchor="middle">enqueue task</text></g>
+        <g data-edge-id="redis-to-dramatiq"><rect x="382" y="502" width="56" height="15" rx="3" class="c-mask"/><text x="410" y="513" class="t-muted" font-size="12" text-anchor="middle">pull chunk</text></g>
+        <g data-edge-id="dramatiq-to-fastembed"><rect x="618" y="502" width="54" height="15" rx="3" class="c-mask"/><text x="645" y="513" class="t-muted" font-size="12" text-anchor="middle">ONNX embed</text></g>
+        <g data-edge-id="fastembed-to-postgres"><rect x="625" y="427" width="68" height="15" rx="3" class="c-mask"/><text x="659" y="438" class="t-backend" font-size="12" text-anchor="middle">insert vectors</text></g>
 
         <!-- Components -->
         <g data-node-id="client">
           <rect x="40" y="150" width="120" height="64" rx="6" class="c-mask"/>
           <rect x="40" y="150" width="120" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
           <text x="100" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Web Console</text>
-          <text x="100" y="190" class="t-muted" font-size="8.5" text-anchor="middle">Browser / SSE UI</text>
+          <text x="100" y="190" class="t-muted" font-size="12" text-anchor="middle">Browser / SSE UI</text>
           <text x="100" y="202" class="t-backend" font-size="7" text-anchor="middle">Port 8000</text>
         </g>
 
@@ -150,7 +144,7 @@
           <rect x="230" y="150" width="140" height="64" rx="6" class="c-mask"/>
           <rect x="230" y="150" width="140" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
           <text x="300" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">FastAPI Gateway</text>
-          <text x="300" y="190" class="t-muted" font-size="8.5" text-anchor="middle">HTTP &amp; SSE Stream</text>
+          <text x="300" y="190" class="t-muted" font-size="12" text-anchor="middle">HTTP &amp; SSE Stream</text>
           <text x="300" y="202" class="t-backend" font-size="7" text-anchor="middle">Uvicorn ASGI</text>
         </g>
 
@@ -158,7 +152,7 @@
           <rect x="450" y="150" width="150" height="64" rx="6" class="c-mask"/>
           <rect x="450" y="150" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
           <text x="525" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">LangGraph Core</text>
-          <text x="525" y="190" class="t-muted" font-size="8.5" text-anchor="middle">Adaptive StateGraph</text>
+          <text x="525" y="190" class="t-muted" font-size="12" text-anchor="middle">Adaptive StateGraph</text>
           <text x="525" y="202" class="t-backend" font-size="7" text-anchor="middle">Bounded FSM</text>
         </g>
 
@@ -166,7 +160,7 @@
           <rect x="690" y="150" width="140" height="64" rx="6" class="c-mask"/>
           <rect x="690" y="150" width="140" height="64" rx="6" class="c-cloud" stroke-width="1.5"/>
           <text x="760" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Groq LPU Engine</text>
-          <text x="760" y="190" class="t-muted" font-size="8.5" text-anchor="middle">Llama-3.1/3.3 LPUs</text>
+          <text x="760" y="190" class="t-muted" font-size="12" text-anchor="middle">Llama-3.1/3.3 LPUs</text>
           <text x="760" y="202" class="t-cloud" font-size="7" text-anchor="middle">Fast Inference</text>
         </g>
 
@@ -174,7 +168,7 @@
           <rect x="450" y="325" width="150" height="68" rx="6" class="c-mask"/>
           <rect x="450" y="325" width="150" height="68" rx="6" class="c-database" stroke-width="1.5"/>
           <text x="525" y="348" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">PostgreSQL 16</text>
-          <text x="525" y="364" class="t-muted" font-size="8" text-anchor="middle">HNSW (m=16) + GIN</text>
+          <text x="525" y="364" class="t-muted" font-size="12" text-anchor="middle">HNSW (m=16) + GIN</text>
           <text x="525" y="377" class="t-database" font-size="7" text-anchor="middle">RRF Fusion k=60</text>
         </g>
 
@@ -182,7 +176,7 @@
           <rect x="690" y="325" width="140" height="68" rx="6" class="c-mask"/>
           <rect x="690" y="325" width="140" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
           <text x="760" y="348" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">FlashRank Rescorer</text>
-          <text x="760" y="364" class="t-muted" font-size="8" text-anchor="middle">TinyBERT-L-2-v2</text>
+          <text x="760" y="364" class="t-muted" font-size="12" text-anchor="middle">TinyBERT-L-2-v2</text>
           <text x="760" y="377" class="t-backend" font-size="7" text-anchor="middle">Local ONNX CPU</text>
         </g>
 
@@ -190,7 +184,7 @@
           <rect x="230" y="325" width="140" height="68" rx="6" class="c-mask"/>
           <rect x="230" y="325" width="140" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
           <text x="300" y="348" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">Outbox Dispatcher</text>
-          <text x="300" y="364" class="t-muted" font-size="8" text-anchor="middle">SKIP LOCKED Daemon</text>
+          <text x="300" y="364" class="t-muted" font-size="12" text-anchor="middle">SKIP LOCKED Daemon</text>
           <text x="300" y="377" class="t-backend" font-size="7" text-anchor="middle">Polling Batch 10</text>
         </g>
 
@@ -198,7 +192,7 @@
           <rect x="230" y="480" width="140" height="64" rx="6" class="c-mask"/>
           <rect x="230" y="480" width="140" height="64" rx="6" class="c-messagebus" stroke-width="1.5"/>
           <text x="300" y="504" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Redis 8 Broker</text>
-          <text x="300" y="520" class="t-muted" font-size="8.5" text-anchor="middle">dramatiq:default</text>
+          <text x="300" y="520" class="t-muted" font-size="12" text-anchor="middle">dramatiq:default</text>
           <text x="300" y="532" class="t-messagebus" font-size="7" text-anchor="middle">Append-Only File</text>
         </g>
 
@@ -206,7 +200,7 @@
           <rect x="450" y="480" width="150" height="64" rx="6" class="c-mask"/>
           <rect x="450" y="480" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
           <text x="525" y="504" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Dramatiq Workers</text>
-          <text x="525" y="520" class="t-muted" font-size="8.5" text-anchor="middle">Parsing &amp; Chunking</text>
+          <text x="525" y="520" class="t-muted" font-size="12" text-anchor="middle">Parsing &amp; Chunking</text>
           <text x="525" y="532" class="t-backend" font-size="7" text-anchor="middle">Thread Pool</text>
         </g>
 
@@ -214,7 +208,7 @@
           <rect x="690" y="480" width="140" height="64" rx="6" class="c-mask"/>
           <rect x="690" y="480" width="140" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
           <text x="760" y="504" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">FastEmbed ONNX</text>
-          <text x="760" y="520" class="t-muted" font-size="8.5" text-anchor="middle">bge-small-en-v1.5</text>
+          <text x="760" y="520" class="t-muted" font-size="12" text-anchor="middle">bge-small-en-v1.5</text>
           <text x="760" y="532" class="t-backend" font-size="7" text-anchor="middle">Dense 384d Vectors</text>
         </g>
       </svg>

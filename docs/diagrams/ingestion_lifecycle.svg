@@ -1,73 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 740" role="img" lang="en" aria-labelledby="ingestion-seq-title" data-quality-profile="showcase">
-  <style>
+    <style>
+  <![CDATA[
     :root {
       --bg: #ffffff;
-      --grid: #f1f5f9;
       --text: #0f172a;
       --text-muted: #334155;
       --text-dim: #475569;
-      --text-faint: #64748b;
-      --panel: #ffffff;
-      --panel-border: #cbd5e1;
-      --lane-fill: #f8fafc;
+      --border: #cbd5e1;
+      --lane-bg: #f8fafc;
       --lane-stroke: #cbd5e1;
       --arrow: #334155;
       --arrow-emphasis: #059669;
       --mask: #ffffff;
-      --frontend-fill: #f0f9ff;
-      --frontend-stroke: #0284c7;
-      --backend-fill: #ecfdf5;
-      --backend-stroke: #059669;
-      --database-fill: #f5f3ff;
-      --database-stroke: #7c3aed;
-      --cloud-fill: #fffbeb;
-      --cloud-stroke: #b45309;
-      --security-fill: #fff1f2;
-      --security-stroke: #e11d48;
-      --messagebus-fill: #fff7ed;
-      --messagebus-stroke: #c2410c;
-      --external-fill: #f8fafc;
-      --external-stroke: #475569;
     }
 
-    /* Base Elements */
+    /* Typography */
     text {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      text-rendering: geometricPrecision;
     }
+
+    /* Backgrounds and Frames */
     .c-bg { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
     .c-grid { stroke: #f1f5f9; fill: none; stroke-width: 1; }
     .c-mask { fill: #ffffff; stroke: none; }
+    .c-lane { fill: #f8fafc !important; stroke: #cbd5e1 !important; stroke-width: 1.5; }
+    .node-box { stroke-width: 1.5; }
 
-    /* Node Fills &amp; High-Contrast Borders */
-    .c-frontend { fill: #f0f9ff; stroke: #0284c7; stroke-width: 1.5; }
-    .c-backend { fill: #ecfdf5; stroke: #059669; stroke-width: 1.5; }
-    .c-database { fill: #f5f3ff; stroke: #7c3aed; stroke-width: 1.5; }
-    .c-cloud { fill: #fffbeb; stroke: #b45309; stroke-width: 1.5; }
-    .c-security { fill: #fff1f2; stroke: #e11d48; stroke-width: 1.5; }
-    .c-messagebus { fill: #fff7ed; stroke: #c2410c; stroke-width: 1.5; }
-    .c-external { fill: #f8fafc; stroke: #475569; stroke-width: 1.5; }
-    .c-region { fill: rgba(180, 83, 9, 0.04); stroke: #b45309; stroke-dasharray: 6,4; stroke-width: 1.5; }
-    .c-security-group { fill: transparent; stroke: #e11d48; stroke-dasharray: 4,4; stroke-width: 1.5; }
+    /* Node Category Fills and Crisp Borders */
+    .c-frontend { fill: #f0f9ff !important; stroke: #0284c7 !important; stroke-width: 1.5; }
+    .c-backend { fill: #ecfdf5 !important; stroke: #059669 !important; stroke-width: 1.5; }
+    .c-database { fill: #f5f3ff !important; stroke: #7c3aed !important; stroke-width: 1.5; }
+    .c-cloud { fill: #fffbeb !important; stroke: #b45309 !important; stroke-width: 1.5; }
+    .c-security { fill: #fff1f2 !important; stroke: #e11d48 !important; stroke-width: 1.5; }
+    .c-messagebus { fill: #fff7ed !important; stroke: #c2410c !important; stroke-width: 1.5; }
+    .c-external { fill: #f8fafc !important; stroke: #475569 !important; stroke-width: 1.5; }
+    .c-region { fill: rgba(180, 83, 9, 0.04) !important; stroke: #b45309 !important; stroke-dasharray: 6,4; stroke-width: 1.5; }
+    .c-security-group { fill: transparent !important; stroke: #e11d48 !important; stroke-dasharray: 4,4; stroke-width: 1.5; }
 
-    /* Crisp Arrows &amp; Connectors */
-    .a-default { stroke: #334155; fill: none; stroke-width: 1.75; }
-    .a-emphasis { stroke: #059669; fill: none; stroke-width: 2; }
-    .a-security { stroke: #e11d48; fill: none; stroke-width: 1.75; }
-    .a-dashed { stroke: #c2410c; fill: none; stroke-dasharray: 5,4; stroke-width: 1.75; }
-    .m-default { fill: #334155; }
-    .m-emphasis { fill: #059669; }
-    .m-security { fill: #e11d48; }
-    .m-dashed { fill: #c2410c; }
+    /* Connectors and Arrows */
+    .a-default { stroke: #334155 !important; fill: none; stroke-width: 1.75; }
+    .a-emphasis { stroke: #059669 !important; fill: none; stroke-width: 2; }
+    .a-security { stroke: #e11d48 !important; fill: none; stroke-width: 1.75; }
+    .a-dashed { stroke: #c2410c !important; fill: none; stroke-dasharray: 5,4; stroke-width: 1.75; }
+    .a-return { stroke: #475569 !important; fill: none; stroke-dasharray: 5,5; stroke-width: 1.5; }
+    .m-default { fill: #334155 !important; }
+    .m-emphasis { fill: #059669 !important; }
+    .m-security { fill: #e11d48 !important; }
+    .m-dashed { fill: #c2410c !important; }
+
+    /* Activation Bars in Sequence Diagrams */
+    .activation-bar { stroke-width: 1; }
 
     /* High-Contrast Pitch-Dark Text */
-    .t-primary { fill: #0f172a; font-weight: 600; }
-    .t-muted { fill: #334155; font-weight: 500; }
-    .t-dim { fill: #475569; }
-    .t-backend { fill: #047857; font-weight: 600; }
-    .t-cloud { fill: #b45309; font-weight: 600; }
-    .t-security { fill: #be123c; font-weight: 600; }
-    .t-database { fill: #6d28d9; font-weight: 600; }
-    .t-messagebus { fill: #c2410c; font-weight: 600; }
+    .t-primary { fill: #0f172a !important; font-weight: 600; }
+    .t-muted { fill: #334155 !important; font-weight: 500; }
+    .t-dim { fill: #334155 !important; font-weight: 600; }
+    .t-backend { fill: #047857 !important; font-weight: 600; }
+    .t-cloud { fill: #b45309 !important; font-weight: 600; }
+    .t-security { fill: #be123c !important; font-weight: 600; }
+    .t-database { fill: #6d28d9 !important; font-weight: 600; }
+    .t-messagebus { fill: #c2410c !important; font-weight: 600; }
+  ]]>
   </style>
   <rect width="100%" height="100%" class="c-bg" rx="10" />
 
@@ -94,13 +88,13 @@
 
         <!-- Phase Segments -->
         <rect data-graph-role="structural-frame" data-composition-frame-kind="segment" x="30" y="145" width="860" height="155" rx="8" class="c-lane" stroke-width="1"/>
-        <g><rect x="42" y="126" width="235" height="18" rx="3" class="c-mask"/><text x="48" y="139" class="t-dim" font-size="9" font-weight="600">Phase 1: Atomic Intake &amp; Outbox Commit</text></g>
+        <g><rect x="42" y="126" width="235" height="18" rx="3" class="c-mask"/><text x="48" y="139" class="t-dim" font-size="13" font-weight="600">Phase 1: Atomic Intake &amp; Outbox Commit</text></g>
 
         <rect data-graph-role="structural-frame" data-composition-frame-kind="segment" x="30" y="325" width="860" height="155" rx="8" class="c-lane" stroke-width="1"/>
-        <g><rect x="42" y="306" width="245" height="18" rx="3" class="c-mask"/><text x="48" y="319" class="t-dim" font-size="9" font-weight="600">Phase 2: FOR UPDATE SKIP LOCKED Dispatch</text></g>
+        <g><rect x="42" y="306" width="245" height="18" rx="3" class="c-mask"/><text x="48" y="319" class="t-dim" font-size="13" font-weight="600">Phase 2: FOR UPDATE SKIP LOCKED Dispatch</text></g>
 
         <rect data-graph-role="structural-frame" data-composition-frame-kind="segment" x="30" y="505" width="860" height="195" rx="8" class="c-lane" stroke-width="1"/>
-        <g><rect x="42" y="486" width="245" height="18" rx="3" class="c-mask"/><text x="48" y="499" class="t-dim" font-size="9" font-weight="600">Phase 3: Parsing, Vectorization &amp; Indexing</text></g>
+        <g><rect x="42" y="486" width="245" height="18" rx="3" class="c-mask"/><text x="48" y="499" class="t-dim" font-size="13" font-weight="600">Phase 3: Parsing, Vectorization &amp; Indexing</text></g>
 
         <!-- Lifelines -->
         <path d="M 70 125 L 70 690" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
@@ -132,91 +126,91 @@
         <g data-edge-id="m1" data-edge-from="client" data-edge-to="api">
           <path d="M 75 178 L 195 178" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
           <rect x="85" y="160" width="105" height="15" rx="3" class="c-mask"/>
-          <text x="135" y="171" class="t-backend" font-size="8" text-anchor="middle">POST /upload</text>
+          <text x="135" y="171" class="t-backend" font-size="12" text-anchor="middle">POST /upload</text>
         </g>
 
         <!-- m2: api -> postgres -->
         <g data-edge-id="m2" data-edge-from="api" data-edge-to="postgres">
           <path d="M 205 218 L 325 218" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
           <rect x="215" y="200" width="105" height="15" rx="3" class="c-mask"/>
-          <text x="265" y="211" class="t-security" font-size="8" text-anchor="middle">BEGIN: ACID outbox</text>
+          <text x="265" y="211" class="t-security" font-size="12" text-anchor="middle">BEGIN: ACID outbox</text>
         </g>
 
         <!-- m3: postgres -> api -->
         <g data-edge-id="m3" data-edge-from="postgres" data-edge-to="api">
           <path d="M 325 255 L 205 255" class="a-return" stroke-width="1.4" marker-end="url(#arrowhead)"/>
           <rect x="220" y="238" width="90" height="15" rx="3" class="c-mask"/>
-          <text x="265" y="249" class="t-muted" font-size="8" text-anchor="middle">COMMIT {job_id}</text>
+          <text x="265" y="249" class="t-muted" font-size="12" text-anchor="middle">COMMIT {job_id}</text>
         </g>
 
         <!-- m4: api -> client -->
         <g data-edge-id="m4" data-edge-from="api" data-edge-to="client">
           <path d="M 195 290 L 75 290" class="a-return" stroke-width="1.4" marker-end="url(#arrowhead)"/>
           <rect x="85" y="273" width="105" height="15" rx="3" class="c-mask"/>
-          <text x="135" y="284" class="t-muted" font-size="8" text-anchor="middle">202 Accepted</text>
+          <text x="135" y="284" class="t-muted" font-size="12" text-anchor="middle">202 Accepted</text>
         </g>
 
         <!-- m5: dispatcher -> postgres -->
         <g data-edge-id="m5" data-edge-from="dispatcher" data-edge-to="postgres">
           <path d="M 455 350 L 335 350" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
           <rect x="345" y="333" width="100" height="15" rx="3" class="c-mask"/>
-          <text x="395" y="344" class="t-muted" font-size="8" text-anchor="middle">SKIP LOCKED poll</text>
+          <text x="395" y="344" class="t-muted" font-size="12" text-anchor="middle">SKIP LOCKED poll</text>
         </g>
 
         <!-- m6: postgres -> dispatcher -->
         <g data-edge-id="m6" data-edge-from="postgres" data-edge-to="dispatcher">
           <path d="M 335 385 L 455 385" class="a-return" stroke-width="1.4" marker-end="url(#arrowhead)"/>
           <rect x="350" y="368" width="90" height="15" rx="3" class="c-mask"/>
-          <text x="395" y="379" class="t-muted" font-size="8" text-anchor="middle">yield batch rows</text>
+          <text x="395" y="379" class="t-muted" font-size="12" text-anchor="middle">yield batch rows</text>
         </g>
 
         <!-- m7: dispatcher -> redis -->
         <g data-edge-id="m7" data-edge-from="dispatcher" data-edge-to="redis">
           <path d="M 465 420 L 585 420" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
           <rect x="480" y="403" width="95" height="15" rx="3" class="c-mask"/>
-          <text x="525" y="414" class="t-backend" font-size="8" text-anchor="middle">enqueue task</text>
+          <text x="525" y="414" class="t-backend" font-size="12" text-anchor="middle">enqueue task</text>
         </g>
 
         <!-- m8: dispatcher -> postgres -->
         <g data-edge-id="m8" data-edge-from="dispatcher" data-edge-to="postgres">
           <path d="M 455 455 L 335 455" class="a-dashed" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
           <rect x="340" y="438" width="110" height="15" rx="3" class="c-mask"/>
-          <text x="395" y="449" class="t-messagebus" font-size="8" text-anchor="middle">set dispatched_at</text>
+          <text x="395" y="449" class="t-messagebus" font-size="12" text-anchor="middle">set dispatched_at</text>
         </g>
 
         <!-- m9: redis -> worker -->
         <g data-edge-id="m9" data-edge-from="redis" data-edge-to="worker">
           <path d="M 595 510 L 715 510" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
           <rect x="610" y="493" width="95" height="15" rx="3" class="c-mask"/>
-          <text x="655" y="504" class="t-backend" font-size="8" text-anchor="middle">consume task</text>
+          <text x="655" y="504" class="t-backend" font-size="12" text-anchor="middle">consume task</text>
         </g>
 
         <!-- m10: worker -> fastembed -->
         <g data-edge-id="m10" data-edge-from="worker" data-edge-to="fastembed">
           <path d="M 725 555 L 845 555" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
           <rect x="740" y="538" width="95" height="15" rx="3" class="c-mask"/>
-          <text x="785" y="549" class="t-muted" font-size="8" text-anchor="middle">pass chunks (500t)</text>
+          <text x="785" y="549" class="t-muted" font-size="12" text-anchor="middle">pass chunks (500t)</text>
         </g>
 
         <!-- m11: fastembed -> worker -->
         <g data-edge-id="m11" data-edge-from="fastembed" data-edge-to="worker">
           <path d="M 845 590 L 725 590" class="a-return" stroke-width="1.4" marker-end="url(#arrowhead)"/>
           <rect x="745" y="573" width="85" height="15" rx="3" class="c-mask"/>
-          <text x="785" y="584" class="t-muted" font-size="8" text-anchor="middle">return 384d vectors</text>
+          <text x="785" y="584" class="t-muted" font-size="12" text-anchor="middle">return 384d vectors</text>
         </g>
 
         <!-- m12: worker -> postgres -->
         <g data-edge-id="m12" data-edge-from="worker" data-edge-to="postgres">
           <path d="M 715 630 L 335 630" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
           <rect x="470" y="613" width="115" height="15" rx="3" class="c-mask"/>
-          <text x="525" y="624" class="t-backend" font-size="8" text-anchor="middle">insert chunks (HNSW+GIN)</text>
+          <text x="525" y="624" class="t-backend" font-size="12" text-anchor="middle">insert chunks (HNSW+GIN)</text>
         </g>
 
         <!-- m13: worker -> postgres -->
         <g data-edge-id="m13" data-edge-from="worker" data-edge-to="postgres">
           <path d="M 715 665 L 335 665" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
           <rect x="465" y="648" width="125" height="15" rx="3" class="c-mask"/>
-          <text x="525" y="659" class="t-security" font-size="8" text-anchor="middle">status = 'active'</text>
+          <text x="525" y="659" class="t-security" font-size="12" text-anchor="middle">status = 'active'</text>
         </g>
 
         <!-- Participants -->
