@@ -439,7 +439,7 @@
         <g id="node-docs_table" class="node-group" data-node="docs_table">
           <rect x="255" y="110" width="150" height="60" rx="6" class="node-box c-database" />
           <text x="267" y="132" fill="var(--text)" font-size="12" font-weight="600">documents</text>
-          <text x="267" y="148" fill="var(--text-muted)" font-size="9.5">metadata & version</text>
+          <text x="267" y="148" fill="var(--text-muted)" font-size="9.5">metadata &amp; version</text>
           <rect x="267" y="154" width="76" height="12" rx="2" fill="rgba(167, 139, 250, 0.2)" />
           <text x="270" y="163" fill="#a78bfa" font-size="8">PostgreSQL 16</text>
         </g>

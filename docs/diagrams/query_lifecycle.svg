@@ -322,23 +322,23 @@
         <path d="M 845 125 L 845 710" class="a-default" stroke-width="0.8" stroke-dasharray="3,7"/>
 
         <!-- Activation Bars -->
-        <rect class="activation-bar" data-participant="api" x="190" y="174" width="10" height="518" rx="3" class="c-mask"/>
-        <rect class="activation-bar" data-participant="api" x="190" y="174" width="10" height="518" rx="3" class="c-backend" stroke-width="1"/>
+        <rect class="activation-bar c-mask" data-participant="api" x="190" y="174" width="10" height="518" rx="3"/>
+        <rect class="activation-bar c-backend" data-participant="api" x="190" y="174" width="10" height="518" rx="3" stroke-width="1"/>
 
-        <rect class="activation-bar" data-participant="agent" x="320" y="210" width="10" height="412" rx="3" class="c-mask"/>
-        <rect class="activation-bar" data-participant="agent" x="320" y="210" width="10" height="412" rx="3" class="c-backend" stroke-width="1"/>
+        <rect class="activation-bar c-mask" data-participant="agent" x="320" y="210" width="10" height="412" rx="3"/>
+        <rect class="activation-bar c-backend" data-participant="agent" x="320" y="210" width="10" height="412" rx="3" stroke-width="1"/>
 
-        <rect class="activation-bar" data-participant="groq" x="840" y="244" width="10" height="46" rx="3" class="c-mask"/>
-        <rect class="activation-bar" data-participant="groq" x="840" y="244" width="10" height="46" rx="3" class="c-cloud" stroke-width="1"/>
+        <rect class="activation-bar c-mask" data-participant="groq" x="840" y="244" width="10" height="46" rx="3"/>
+        <rect class="activation-bar c-cloud" data-participant="groq" x="840" y="244" width="10" height="46" rx="3" stroke-width="1"/>
 
-        <rect class="activation-bar" data-participant="postgres" x="450" y="344" width="10" height="46" rx="3" class="c-mask"/>
-        <rect class="activation-bar" data-participant="postgres" x="450" y="344" width="10" height="46" rx="3" class="c-database" stroke-width="1"/>
+        <rect class="activation-bar c-mask" data-participant="postgres" x="450" y="344" width="10" height="46" rx="3"/>
+        <rect class="activation-bar c-database" data-participant="postgres" x="450" y="344" width="10" height="46" rx="3" stroke-width="1"/>
 
-        <rect class="activation-bar" data-participant="reranker" x="580" y="420" width="10" height="46" rx="3" class="c-mask"/>
-        <rect class="activation-bar" data-participant="reranker" x="580" y="420" width="10" height="46" rx="3" class="c-backend" stroke-width="1"/>
+        <rect class="activation-bar c-mask" data-participant="reranker" x="580" y="420" width="10" height="46" rx="3"/>
+        <rect class="activation-bar c-backend" data-participant="reranker" x="580" y="420" width="10" height="46" rx="3" stroke-width="1"/>
 
-        <rect class="activation-bar" data-participant="groq" x="840" y="570" width="10" height="50" rx="3" class="c-mask"/>
-        <rect class="activation-bar" data-participant="groq" x="840" y="570" width="10" height="50" rx="3" class="c-cloud" stroke-width="1"/>
+        <rect class="activation-bar c-mask" data-participant="groq" x="840" y="570" width="10" height="50" rx="3"/>
+        <rect class="activation-bar c-cloud" data-participant="groq" x="840" y="570" width="10" height="50" rx="3" stroke-width="1"/>
 
         <!-- Messages -->
         <!-- m1: client -> api -->
