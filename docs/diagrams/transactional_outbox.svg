@@ -1,316 +1,73 @@
 <svg viewBox="0 0 1080 500" xmlns="http://www.w3.org/2000/svg">
   <style>
     :root {
-      --bg: #020617;
-      --grid: #1e293b;
-      --text: #ffffff;
-      --text-muted: #94a3b8;
-      --text-dim: #475569;
-      --text-faint: #7d8da1;
-      --panel: rgba(15, 23, 42, 0.65);
-      --panel-border: #1e293b;
-      --lane-fill: rgba(15, 23, 42, 0.22);
-      --lane-stroke: #334155;
-      --arrow: #64748b;
-      --arrow-emphasis: #34d399;
-      --mask: #0f172a;
-      --frontend-fill: rgba(8, 51, 68, 0.55);
-      --frontend-stroke: #22d3ee;
-      --backend-fill: rgba(6, 78, 59, 0.55);
-      --backend-stroke: #34d399;
-      --database-fill: rgba(76, 29, 149, 0.55);
-      --database-stroke: #a78bfa;
-      --cloud-fill: rgba(120, 53, 15, 0.45);
-      --cloud-stroke: #fbbf24;
-      --security-fill: rgba(136, 19, 55, 0.55);
-      --security-stroke: #fb7185;
-      --messagebus-fill: rgba(251, 146, 60, 0.45);
-      --messagebus-stroke: #fb923c;
-      --external-fill: rgba(30, 41, 59, 0.65);
-      --external-stroke: #94a3b8;
-    }
-
-    :root, [data-theme="dark"] {
-      --bg: #020617;
-      --grid: #1e293b;
-      --text: #ffffff;
-      --text-muted: #94a3b8;
-      --text-dim: #475569;
-      --text-faint: #7d8da1;
-      --panel: rgba(15, 23, 42, 0.65);
-      --panel-border: #1e293b;
-      --lane-fill: rgba(15, 23, 42, 0.22);
-      --lane-stroke: #334155;
-      --arrow: #64748b;
-      --arrow-emphasis: #38bdf8;
-      --arrow-security: #f43f5e;
-      --mask: #020617;
-      --frontend-fill: rgba(8, 51, 68, 0.45);
-      --frontend-stroke: #22d3ee;
-      --backend-fill: rgba(6, 78, 59, 0.45);
-      --backend-stroke: #34d399;
-      --database-fill: rgba(76, 29, 149, 0.45);
-      --database-stroke: #a78bfa;
-      --cloud-fill: rgba(120, 53, 15, 0.35);
-      --cloud-stroke: #fbbf24;
-      --security-fill: rgba(136, 19, 55, 0.35);
-      --security-stroke: #fb7185;
-      --messagebus-fill: rgba(251, 146, 60, 0.35);
-      --messagebus-stroke: #fb923c;
-      --external-fill: rgba(30, 41, 59, 0.55);
-      --external-stroke: #94a3b8;
-      --toolbar-bg: rgba(15, 23, 42, 0.85);
-      --toolbar-border: #334155;
-      --toolbar-text: #e2e8f0;
-      --toolbar-hover: rgba(30, 41, 59, 0.95);
-      --glow-color: rgba(56, 189, 248, 0.35);
-    }
-    [data-theme="light"] {
-      --bg: #f8fafc;
-      --grid: #e2e8f0;
+      --bg: #ffffff;
+      --grid: #f1f5f9;
       --text: #0f172a;
-      --text-muted: #64748b;
-      --text-dim: #94a3b8;
+      --text-muted: #334155;
+      --text-dim: #475569;
       --text-faint: #64748b;
       --panel: #ffffff;
-      --panel-border: #e2e8f0;
-      --lane-fill: rgba(248, 250, 252, 0.7);
+      --panel-border: #cbd5e1;
+      --lane-fill: #f8fafc;
       --lane-stroke: #cbd5e1;
-      --arrow: #64748b;
-      --arrow-emphasis: #0284c7;
-      --arrow-security: #e11d48;
-      --mask: #f8fafc;
-      --frontend-fill: rgba(6, 182, 212, 0.12);
-      --frontend-stroke: #0891b2;
-      --backend-fill: rgba(16, 185, 129, 0.12);
+      --arrow: #334155;
+      --arrow-emphasis: #059669;
+      --mask: #ffffff;
+      --frontend-fill: #f0f9ff;
+      --frontend-stroke: #0284c7;
+      --backend-fill: #ecfdf5;
       --backend-stroke: #059669;
-      --database-fill: rgba(139, 92, 246, 0.12);
+      --database-fill: #f5f3ff;
       --database-stroke: #7c3aed;
-      --cloud-fill: rgba(245, 158, 11, 0.12);
-      --cloud-stroke: #d97706;
-      --security-fill: rgba(244, 63, 94, 0.12);
+      --cloud-fill: #fffbeb;
+      --cloud-stroke: #b45309;
+      --security-fill: #fff1f2;
       --security-stroke: #e11d48;
-      --messagebus-fill: rgba(249, 115, 22, 0.12);
-      --messagebus-stroke: #ea580c;
-      --external-fill: rgba(100, 116, 139, 0.12);
+      --messagebus-fill: #fff7ed;
+      --messagebus-stroke: #c2410c;
+      --external-fill: #f8fafc;
       --external-stroke: #475569;
-      --toolbar-bg: rgba(255, 255, 255, 0.92);
-      --toolbar-border: #cbd5e1;
-      --toolbar-text: #1e293b;
-      --toolbar-hover: #f1f5f9;
-      --glow-color: rgba(2, 132, 199, 0.25);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-      font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 1.5rem;
-      transition: background 0.2s, color 0.2s;
+
+    /* Base Elements */
+    text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
-      width: 100%;
-      max-width: 1380px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-    header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--panel-border);
-    }
-      font-size: 1.35rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .title-group p {
-      font-size: 0.825rem;
-      color: var(--text-muted);
-      margin-top: 0.2rem;
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.2rem 0.55rem;
-      border-radius: 9999px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      background: rgba(56, 189, 248, 0.15);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.3);
-    }
-    .badge-amber {
-      background: rgba(245, 158, 11, 0.15);
-      color: #f59e0b;
-      border-color: rgba(245, 158, 11, 0.3);
-    }
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: var(--toolbar-bg);
-      border: 1px solid var(--toolbar-border);
-      padding: 0.3rem 0.4rem;
-      border-radius: 0.6rem;
-    }
-      background: transparent;
-      border: none;
-      color: var(--toolbar-text);
-      padding: 0.35rem 0.65rem;
-      border-radius: 0.4rem;
-      font-size: 0.75rem;
-      font-family: inherit;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      transition: background 0.15s, color 0.15s;
-    }
-      background: #0284c7;
-      color: #ffffff;
-      font-weight: 600;
-    }
-      background: var(--panel);
-      border: 1px solid var(--panel-border);
-      border-left: 3px solid #38bdf8;
-      padding: 0.65rem 1rem;
-      border-radius: 0.4rem;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 2.5rem;
-    }
-    .svg-wrapper {
-      position: relative;
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--panel-border);
-      border-radius: 0.75rem;
-      overflow: hidden;
-      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
-    }
-    svg {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-    .c-frontend { fill: var(--frontend-fill); stroke: var(--frontend-stroke); stroke-width: 1.5; }
-    .c-backend { fill: var(--backend-fill); stroke: var(--backend-stroke); stroke-width: 1.5; }
-    .c-database { fill: var(--database-fill); stroke: var(--database-stroke); stroke-width: 1.5; }
-    .c-cloud { fill: var(--cloud-fill); stroke: var(--cloud-stroke); stroke-width: 1.5; }
-    .c-security { fill: var(--security-fill); stroke: var(--security-stroke); stroke-width: 1.5; }
-    .c-messagebus { fill: var(--messagebus-fill); stroke: var(--messagebus-stroke); stroke-width: 1.5; }
-    .c-external { fill: var(--external-fill); stroke: var(--external-stroke); stroke-width: 1.5; }
-    .c-stage { fill: var(--lane-fill); stroke: var(--lane-stroke); stroke-width: 1; stroke-dasharray: 4,4; }
-    .c-acid-box { fill: var(--security-fill); stroke: var(--security-stroke); stroke-width: 1.5; stroke-dasharray: 5,4; }
-    .c-mask { fill: var(--mask); }
-    .a-default { stroke: var(--arrow); stroke-width: 1.5; fill: none; }
-    .a-emphasis { stroke: var(--arrow-emphasis); stroke-width: 2; fill: none; }
-    .a-security { stroke: var(--arrow-security); stroke-width: 2; fill: none; }
-    .node-group {
-      cursor: pointer;
-      transition: opacity 0.25s, transform 0.2s;
-    }
-    .node-group:hover rect.node-box {
-      filter: drop-shadow(0 0 8px var(--glow-color));
-      stroke-width: 2;
-    }
-    .flow-line {
-      transition: opacity 0.25s, stroke-width 0.2s;
-    }
-    .flow-line.dimmed, .node-group.dimmed {
-      opacity: 0.14 !important;
-    }
-    .flow-line.highlighted {
-      stroke-width: 3 !important;
-      opacity: 1 !important;
-    }
-      fill: #38bdf8;
-      r: 3.5;
-    }
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 1rem;
-      margin-top: 0.5rem;
-    }
-      background: var(--panel);
-      border: 1px solid var(--panel-border);
-      border-radius: 0.6rem;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-      font-size: 0.85rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-    }
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .dot-cyan { background: #38bdf8; }
-    .dot-amber { background: #fbbf24; }
-    .dot-emerald { background: #34d399; }
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      line-height: 1.4;
-      position: relative;
-      padding-left: 1rem;
-    }
-      content: "•";
-      position: absolute;
-      left: 0;
-      color: var(--text-dim);
-    }
-    footer {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.75rem;
-      padding-top: 0.5rem;
-      font-size: 0.72rem;
-      color: var(--text-dim);
-      border-top: 1px solid var(--panel-border);
-    }
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.8rem;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-    .legend-color {
-      width: 10px;
-      height: 10px;
-      border-radius: 2px;
-      border: 1px solid;
-    }
-  
-    .c-bg { fill: var(--bg); }
-    text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'JetBrains Mono', monospace, sans-serif; }
+    .c-bg { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
+    .c-grid { stroke: #f1f5f9; fill: none; stroke-width: 1; }
+    .c-mask { fill: #ffffff; stroke: none; }
+
+    /* Node Fills &amp; High-Contrast Borders */
+    .c-frontend { fill: #f0f9ff; stroke: #0284c7; stroke-width: 1.5; }
+    .c-backend { fill: #ecfdf5; stroke: #059669; stroke-width: 1.5; }
+    .c-database { fill: #f5f3ff; stroke: #7c3aed; stroke-width: 1.5; }
+    .c-cloud { fill: #fffbeb; stroke: #b45309; stroke-width: 1.5; }
+    .c-security { fill: #fff1f2; stroke: #e11d48; stroke-width: 1.5; }
+    .c-messagebus { fill: #fff7ed; stroke: #c2410c; stroke-width: 1.5; }
+    .c-external { fill: #f8fafc; stroke: #475569; stroke-width: 1.5; }
+    .c-region { fill: rgba(180, 83, 9, 0.04); stroke: #b45309; stroke-dasharray: 6,4; stroke-width: 1.5; }
+    .c-security-group { fill: transparent; stroke: #e11d48; stroke-dasharray: 4,4; stroke-width: 1.5; }
+
+    /* Crisp Arrows &amp; Connectors */
+    .a-default { stroke: #334155; fill: none; stroke-width: 1.75; }
+    .a-emphasis { stroke: #059669; fill: none; stroke-width: 2; }
+    .a-security { stroke: #e11d48; fill: none; stroke-width: 1.75; }
+    .a-dashed { stroke: #c2410c; fill: none; stroke-dasharray: 5,4; stroke-width: 1.75; }
+    .m-default { fill: #334155; }
+    .m-emphasis { fill: #059669; }
+    .m-security { fill: #e11d48; }
+    .m-dashed { fill: #c2410c; }
+
+    /* High-Contrast Pitch-Dark Text */
+    .t-primary { fill: #0f172a; font-weight: 600; }
+    .t-muted { fill: #334155; font-weight: 500; }
+    .t-dim { fill: #475569; }
+    .t-backend { fill: #047857; font-weight: 600; }
+    .t-cloud { fill: #b45309; font-weight: 600; }
+    .t-security { fill: #be123c; font-weight: 600; }
+    .t-database { fill: #6d28d9; font-weight: 600; }
+    .t-messagebus { fill: #c2410c; font-weight: 600; }
   </style>
   <rect width="100%" height="100%" class="c-bg" rx="10" />
 
