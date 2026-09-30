@@ -34,66 +34,12 @@ This platform replaces ad-hoc chains with canonical retrieval architectures—co
 
 ## 2. System Topology & Component Interactions
 
-```mermaid
-flowchart TD
-    subgraph ClientLayer ["Client & Interface Layer"]
-        WebUI["Interactive Web Console (Port 8000)"]
-        Dropzone["Multi-Format Ingestion Intake (.pdf, .md, .txt)"]
-        ChatFeed["Real-Time SSE Token Stream"]
-        HealthBar["Active Infrastructure Telemetry"]
-    end
-
-    subgraph GatewayLayer ["FastAPI Gateway (Port 8000)"]
-        StreamEndpoint["POST /v1/agent/stream"]
-        SyncEndpoint["POST /v1/agent/query"]
-        UploadEndpoint["POST /v1/documents/upload"]
-        HealthProbe["GET /health/ready (Socket Probes)"]
-    end
-
-    subgraph AgentCore ["Reasoning Core: Bounded StateGraph"]
-        Router["Node: route_and_condense\n(LPU Query Condensation)"]
-        Decider{"Node: decide_after_retrieval\n(Evidence Evaluation)"}
-        WebTool["Node: web_search_fallback\n(DuckDuckGo / Tavily Provider)"]
-        Synthesizer["Node: generate_answer\n(Grounded Context Synthesis)"]
-        Checkpointer["Checkpointer State\n(MemorySaver / Durable Storage)"]
-    end
-
-    subgraph StorageLayer ["PostgreSQL 16 Engine"]
-        HNSW["pgvector HNSW Index\n(Cosine Distance m=16, ef=64)"]
-        GIN["tsvector GIN Index\n(Lexical BM25 english)"]
-        RPC["match_chunks_hybrid RPC\n(Reciprocal Rank Fusion k=60)"]
-        OutboxTable["private.job_dispatch_outbox\n(Transactional Event Queue)"]
-    end
-
-    subgraph IngestionSubsystem ["Asynchronous Ingestion Engine"]
-        Dispatcher["Outbox Dispatcher Daemon\n(FOR UPDATE SKIP LOCKED)"]
-        RedisQueue["Redis 8 Alpine Broker"]
-        Workers["Dramatiq Worker Pool"]
-        LocalEmbed["FastEmbed Local ONNX\n(BAAI/bge-small-en-v1.5)"]
-    end
-
-    WebUI --> StreamEndpoint
-    Dropzone --> UploadEndpoint
-    HealthBar --> HealthProbe
-
-    StreamEndpoint --> Router
-    Router <--> Checkpointer
-    Router -- "Direct Conversational" --> Synthesizer
-    Router -- "Knowledge Query" --> RPC
-    RPC --> HNSW
-    RPC --> GIN
-    RPC --> Decider
-    Decider -- "Evidence Present" --> Synthesizer
-    Decider -- "Zero Chunks Returned" --> WebTool
-    WebTool --> Synthesizer
-
-    UploadEndpoint --> OutboxTable
-    OutboxTable --> Dispatcher
-    Dispatcher --> RedisQueue
-    RedisQueue --> Workers
-    Workers --> LocalEmbed
-    LocalEmbed --> HNSW
-```
+<p align="center">
+  <img src="docs/diagrams/system_topology.svg" alt="RAG-Agent System Topology" width="100%">
+  <br>
+  <em>Multi-tier architectural topology, network boundaries, and component interactions.</em> &bull;
+  <a href="docs/diagrams/system_topology.html"><strong>Open Interactive Diagram Viewer ↗</strong></a>
+</p>
 
 ---
 
@@ -126,20 +72,12 @@ The platform integrates 15 core technologies organized across discrete architect
 ### 4.1 Bounded StateGraph & Query Condensation (`AdaptiveRagGraph`)
 The reasoning engine is structured as a bounded LangGraph `StateGraph`. Unlike autonomous loop agents that can diverge into unbounded recursion, this graph enforces a finite state machine:
 
-```
-[Start] ──> route_and_condense ──┬──[Conversational]──> generate_answer ──> [End]
-                                 │
-                                 └──[Search Required]──> retrieve_documents 
-                                                                │
-                                                                ▼
-                                                     decide_after_retrieval
-                                                                ├──[Evidence Found]────> generate_answer ──> [End]
-                                                                │
-                                                                └──[No Documents]──────> web_search_fallback 
-                                                                                                │
-                                                                                                ▼
-                                                                                          generate_answer ──> [End]
-```
+<p align="center">
+  <img src="docs/diagrams/agent_stategraph.svg" alt="Bounded Agent StateGraph Transitions" width="100%">
+  <br>
+  <em>Bounded LangGraph StateGraph transitions, routing conditionals, and evidence evaluation.</em> &bull;
+  <a href="docs/diagrams/agent_stategraph.html"><strong>Open Interactive Diagram Viewer ↗</strong></a>
+</p>
 
 - **Query Condensation**: Multi-turn conversations frequently introduce pronouns (*"What are its limits?"*, *"Can you elaborate on that point?"*). Before querying the database, the agent calls a high-speed LPU model (`llama-3.1-8b-instant`) to rewrite the conversation into an independent, disambiguated query string.
 - **Corrective Fallback**: If candidate retrieval yields zero chunks—indicating an out-of-domain query or an empty workspace index—the agent automatically activates the `web_search_fallback` node to fetch external real-time context rather than returning an empty hallucination.
@@ -180,11 +118,12 @@ This joint attention rescores the candidate set, filtering out false semantic po
 ### 4.4 Distributed Transactional Outbox Engine
 In distributed systems, updating a database and publishing an asynchronous event in two separate calls creates a dual-write vulnerability:
 
-```
-[Client] ──> Write to Database (Success)
-               │
-               └──> Network Drop / Crash (Message Broker Never Receives Job)
-```
+<p align="center">
+  <img src="docs/diagrams/transactional_outbox.svg" alt="Transactional Outbox Dataflow & SKIP LOCKED" width="100%">
+  <br>
+  <em>Dual-write immunity boundary and SKIP LOCKED concurrent batch claiming.</em> &bull;
+  <a href="docs/diagrams/transactional_outbox.html"><strong>Open Interactive Diagram Viewer ↗</strong></a>
+</p>
 
 To guarantee that document uploads are never orphaned or lost:
 1. **Atomic Dual-Write Prevention**: The FastAPI endpoint commits document metadata, version staging, and an outbox record inside a **single ACID transaction** in PostgreSQL.
@@ -301,73 +240,21 @@ The live profile operates in containerized or cloud environments, connecting con
 
 ### Ingestion Lifecycle: From Raw File to Indexed Vector
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Client
-    participant API as FastAPI Gateway
-    participant DB as PostgreSQL 16
-    participant Dispatcher as Outbox Daemon
-    participant Redis as Redis 8 Broker
-    participant Worker as Dramatiq Worker
-    participant Embed as FastEmbed (ONNX)
-
-    Client->>API: POST /v1/documents/upload (Multipart .pdf/.md/.txt)
-    Note over API,DB: Single ACID Transaction
-    API->>DB: INSERT into documents & document_versions
-    API->>DB: INSERT into private.job_dispatch_outbox
-    API-->>Client: 202 Accepted (job_id, document_id)
-
-    loop Every Poll Interval
-        Dispatcher->>DB: SELECT FOR UPDATE SKIP LOCKED
-        Dispatcher->>Redis: Enqueue ingestion task
-        Dispatcher->>DB: UPDATE job_dispatch_outbox SET dispatched_at = now()
-    end
-
-    Redis->>Worker: Consume ingestion task
-    Worker->>Worker: Parse & chunk document (500 tokens, 50 overlap)
-    Worker->>Embed: Generate dense vectors (384 dimensions)
-    Worker->>DB: INSERT into document_chunks (embedding + tsvector)
-    Worker->>DB: UPDATE document_versions SET status = 'active'
-```
+<p align="center">
+  <img src="docs/diagrams/ingestion_lifecycle.svg" alt="Ingestion Lifecycle Sequence" width="100%">
+  <br>
+  <em>End-to-end ingestion sequence from multipart file upload to HNSW vector index activation.</em> &bull;
+  <a href="docs/diagrams/ingestion_lifecycle.html"><strong>Open Interactive Diagram Viewer ↗</strong></a>
+</p>
 
 ### Query Lifecycle: Adaptive Routing & Synthesis
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Client
-    participant API as FastAPI Gateway
-    participant Agent as LangGraph StateGraph
-    participant DB as PostgreSQL (HNSW + GIN)
-    participant Reranker as FlashRank (ONNX)
-    participant Web as Web Search Tool
-    participant LLM as Groq LPU (Llama-3.3-70b)
-
-    Client->>API: POST /v1/agent/stream (query, thread_id)
-    API->>Agent: Invoke StateGraph with checkpoint thread
-    Agent->>Agent: Node: route_and_condense
-    
-    alt Conversational Query (Greeting / Clarification)
-        Agent->>LLM: Stream direct response
-    else Knowledge Query
-        Agent->>DB: Call match_chunks_hybrid(condensed_query)
-        DB-->>Agent: Return top-20 fused candidates (RRF k=60)
-        
-        alt Candidates Found
-            Agent->>Reranker: Cross-encode (query, candidates)
-            Reranker-->>Agent: Return top-5 rescored passages
-        else Zero Candidates Found (Starvation)
-            Agent->>Web: Execute fallback search
-            Web-->>Agent: Return live web snippets
-        end
-        
-        Agent->>LLM: Stream grounded synthesis with citations [1], [2]
-    end
-
-    LLM-->>API: Yield Server-Sent Events (SSE) tokens
-    API-->>Client: Real-time token stream + citation metadata
-```
+<p align="center">
+  <img src="docs/diagrams/query_lifecycle.svg" alt="Query Lifecycle Sequence" width="100%">
+  <br>
+  <em>Adaptive query lifecycle with LPU condensation, hybrid RRF, cross-encoder reranking, and SSE token streaming.</em> &bull;
+  <a href="docs/diagrams/query_lifecycle.html"><strong>Open Interactive Diagram Viewer ↗</strong></a>
+</p>
 
 ---
 
