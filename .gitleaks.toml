@@ -1,0 +1,13 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Ignore mock test fixture keys and dummy configurations"
+paths = [
+    '''tests/.*''',
+    '''docker-compose\.ya?ml'''
+]
+regexes = [
+    '''ingest-key-.*''',
+    '''idempotency-key-.*'''
+]
