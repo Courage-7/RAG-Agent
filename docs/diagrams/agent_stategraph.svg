@@ -23,7 +23,7 @@
     /* Backgrounds and Frames */
     .c-bg { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
     .c-grid { stroke: #f1f5f9; fill: none; stroke-width: 1; }
-    .c-mask { fill: #ffffff; stroke: none; }
+    .c-mask { fill: #ffffff !important; stroke: #cbd5e1 !important; stroke-width: 1; }
     .c-lane { fill: #f8fafc !important; stroke: #cbd5e1 !important; stroke-width: 1.5; }
     .node-box { stroke-width: 1.5; }
 
@@ -123,7 +123,7 @@
         <path data-edge-id="edge_fallback_generate" data-edge-from="web_search_fallback" data-edge-to="generate_answer" d="M 725 370 L 820 370 L 820 510 L 890 510" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
 
         <!-- Labels -->
-        <g data-edge-id="edge_intake_route"><rect x="186" y="93" width="28" height="14" rx="3" class="c-mask"/><text x="200" y="103" class="t-muted" font-size="7" text-anchor="middle">init</text></g>
+        <g data-edge-id="edge_intake_route"><rect x="186" y="93" width="28" height="14" rx="3" class="c-mask"/><text x="200" y="103" class="t-muted" font-size="12.5" text-anchor="middle">init</text></g>
         <g data-edge-id="edge_route_retrieve"><rect x="300" y="226" width="80" height="15" rx="3" class="c-mask"/><text x="340" y="237" class="t-backend" font-size="12" text-anchor="middle">search required</text></g>
         <g data-edge-id="edge_route_direct"><rect x="520" y="84" width="130" height="15" rx="3" class="c-mask"/><text x="585" y="95" class="t-messagebus" font-size="12" text-anchor="middle">conversational fast-path</text></g>
         <g data-edge-id="edge_retrieve_decide"><rect x="548" y="226" width="28" height="15" rx="3" class="c-mask"/><text x="562" y="237" class="t-muted" font-size="12" text-anchor="middle">RRF</text></g>
@@ -135,25 +135,25 @@
         <g data-node-id="user_query">
           <rect x="50" y="75" width="130" height="54" rx="6" class="c-mask"/>
           <rect x="50" y="75" width="130" height="54" rx="6" class="c-external" stroke-width="1.5"/>
-          <text x="115" y="97" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">User Query</text>
+          <text x="115" y="97" class="t-primary" font-size="12.5" font-weight="600" text-anchor="middle">User Query</text>
           <text x="115" y="113" class="t-muted" font-size="12" text-anchor="middle">raw input prompt</text>
-          <text x="115" y="123" class="t-backend" font-size="7" text-anchor="middle">thread state</text>
+          <text x="115" y="123" class="t-backend" font-size="12.5" text-anchor="middle">thread state</text>
         </g>
 
         <g data-node-id="route_and_condense">
           <rect x="220" y="72" width="145" height="60" rx="6" class="c-mask"/>
           <rect x="220" y="72" width="145" height="60" rx="6" class="c-backend" stroke-width="1.5"/>
-          <text x="292" y="94" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">route_and_condense</text>
+          <text x="292" y="94" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">route_and_condense</text>
           <text x="292" y="110" class="t-muted" font-size="12" text-anchor="middle">pronoun resolution</text>
-          <text x="292" y="122" class="t-backend" font-size="7" text-anchor="middle">llama-3.1-8b LPU</text>
+          <text x="292" y="122" class="t-backend" font-size="12.5" text-anchor="middle">llama-3.1-8b LPU</text>
         </g>
 
         <g data-node-id="retrieve_documents">
           <rect x="400" y="205" width="145" height="60" rx="6" class="c-mask"/>
           <rect x="400" y="205" width="145" height="60" rx="6" class="c-database" stroke-width="1.5"/>
-          <text x="472" y="227" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">retrieve_documents</text>
+          <text x="472" y="227" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">retrieve_documents</text>
           <text x="472" y="243" class="t-muted" font-size="12" text-anchor="middle">HNSW + GIN hybrid</text>
-          <text x="472" y="255" class="t-database" font-size="7" text-anchor="middle">RRF k=60 RPC</text>
+          <text x="472" y="255" class="t-database" font-size="12.5" text-anchor="middle">RRF k=60 RPC</text>
         </g>
 
         <g data-node-id="decide_after_retrieval">
@@ -161,7 +161,7 @@
           <rect x="580" y="205" width="145" height="60" rx="6" class="c-security" stroke-width="1.5"/>
           <text x="652" y="227" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">decide_after_retrieval</text>
           <text x="652" y="243" class="t-muted" font-size="12" text-anchor="middle">evidence sufficiency</text>
-          <text x="652" y="255" class="t-security" font-size="7" text-anchor="middle">CRAG router</text>
+          <text x="652" y="255" class="t-security" font-size="12.5" text-anchor="middle">CRAG router</text>
         </g>
 
         <g data-node-id="web_search_fallback">
@@ -169,14 +169,14 @@
           <rect x="580" y="340" width="145" height="60" rx="6" class="c-cloud" stroke-width="1.5"/>
           <text x="652" y="362" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">web_search_fallback</text>
           <text x="652" y="378" class="t-muted" font-size="12" text-anchor="middle">DuckDuckGo / Tavily</text>
-          <text x="652" y="390" class="t-cloud" font-size="7" text-anchor="middle">external search</text>
+          <text x="652" y="390" class="t-cloud" font-size="12.5" text-anchor="middle">external search</text>
         </g>
 
         <g data-node-id="generate_answer">
           <rect x="890" y="460" width="150" height="64" rx="6" class="c-mask"/>
           <rect x="890" y="460" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
-          <text x="965" y="482" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">generate_answer</text>
+          <text x="965" y="482" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">generate_answer</text>
           <text x="965" y="498" class="t-muted" font-size="12" text-anchor="middle">grounded synthesis</text>
-          <text x="965" y="511" class="t-backend" font-size="7" text-anchor="middle">llama-3.3-70b SSE</text>
+          <text x="965" y="511" class="t-backend" font-size="12.5" text-anchor="middle">llama-3.3-70b SSE</text>
         </g>
       </svg>

@@ -1,5 +1,5 @@
 <svg viewBox="0 0 1080 500" xmlns="http://www.w3.org/2000/svg">
-    <style>
+  <style>
   <![CDATA[
     :root {
       --bg: #ffffff;
@@ -11,23 +11,27 @@
       --lane-stroke: #cbd5e1;
       --arrow: #334155;
       --arrow-emphasis: #059669;
+      --arrow-security: #be123c;
+      --security-stroke: #be123c;
+      --grid: #e2e8f0;
       --mask: #ffffff;
     }
 
-    /* Typography */
     text {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       text-rendering: geometricPrecision;
     }
 
-    /* Backgrounds and Frames */
-    .c-bg { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
+    /* Backgrounds and Swimlane Frames */
+    .c-bg { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
     .c-grid { stroke: #f1f5f9; fill: none; stroke-width: 1; }
-    .c-mask { fill: #ffffff; stroke: none; }
+    .c-mask { fill: #ffffff !important; stroke: #cbd5e1 !important; stroke-width: 1; }
     .c-lane { fill: #f8fafc !important; stroke: #cbd5e1 !important; stroke-width: 1.5; }
+    .c-stage { fill: #f8fafc !important; stroke: #cbd5e1 !important; stroke-width: 1.5; }
+    .c-acid-box { fill: #fff1f2 !important; stroke: #f43f5e !important; stroke-dasharray: 5,4; stroke-width: 1.5; }
     .node-box { stroke-width: 1.5; }
 
-    /* Node Category Fills and Crisp Borders */
+    /* Node Category Fills and Borders */
     .c-frontend { fill: #f0f9ff !important; stroke: #0284c7 !important; stroke-width: 1.5; }
     .c-backend { fill: #ecfdf5 !important; stroke: #059669 !important; stroke-width: 1.5; }
     .c-database { fill: #f5f3ff !important; stroke: #7c3aed !important; stroke-width: 1.5; }
@@ -35,226 +39,218 @@
     .c-security { fill: #fff1f2 !important; stroke: #e11d48 !important; stroke-width: 1.5; }
     .c-messagebus { fill: #fff7ed !important; stroke: #c2410c !important; stroke-width: 1.5; }
     .c-external { fill: #f8fafc !important; stroke: #475569 !important; stroke-width: 1.5; }
-    .c-region { fill: rgba(180, 83, 9, 0.04) !important; stroke: #b45309 !important; stroke-dasharray: 6,4; stroke-width: 1.5; }
-    .c-security-group { fill: transparent !important; stroke: #e11d48 !important; stroke-dasharray: 4,4; stroke-width: 1.5; }
 
     /* Connectors and Arrows */
     .a-default { stroke: #334155 !important; fill: none; stroke-width: 1.75; }
     .a-emphasis { stroke: #059669 !important; fill: none; stroke-width: 2; }
-    .a-security { stroke: #e11d48 !important; fill: none; stroke-width: 1.75; }
+    .a-security { stroke: #be123c !important; fill: none; stroke-width: 1.75; }
     .a-dashed { stroke: #c2410c !important; fill: none; stroke-dasharray: 5,4; stroke-width: 1.75; }
     .a-return { stroke: #475569 !important; fill: none; stroke-dasharray: 5,5; stroke-width: 1.5; }
     .m-default { fill: #334155 !important; }
     .m-emphasis { fill: #059669 !important; }
-    .m-security { fill: #e11d48 !important; }
+    .m-security { fill: #be123c !important; }
     .m-dashed { fill: #c2410c !important; }
 
-    /* Activation Bars in Sequence Diagrams */
-    .activation-bar { stroke-width: 1; }
-
-    /* High-Contrast Pitch-Dark Text */
-    .t-primary { fill: #0f172a !important; font-weight: 600; }
+    /* Text Helpers */
+    .t-primary { fill: #0f172a !important; font-weight: 700; }
     .t-muted { fill: #334155 !important; font-weight: 500; }
-    .t-dim { fill: #334155 !important; font-weight: 600; }
-    .t-backend { fill: #047857 !important; font-weight: 600; }
-    .t-cloud { fill: #b45309 !important; font-weight: 600; }
-    .t-security { fill: #be123c !important; font-weight: 600; }
-    .t-database { fill: #6d28d9 !important; font-weight: 600; }
-    .t-messagebus { fill: #c2410c !important; font-weight: 600; }
+    .t-security { fill: #be123c !important; font-weight: 700; }
   ]]>
   </style>
+
+  <!-- Canvas Background -->
   <rect width="100%" height="100%" class="c-bg" rx="10" />
 
-        <defs>
-          <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M 24 0 L 0 0 0 24" fill="none" stroke="var(--grid)" stroke-width="0.5" stroke-opacity="0.35"/>
-          </pattern>
+  <defs>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#e2e8f0" stroke-width="0.5" stroke-opacity="0.5"/>
+    </pattern>
 
-          <marker id="arrow-default" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--arrow)" />
-          </marker>
-          <marker id="arrow-emphasis" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--arrow-emphasis)" />
-          </marker>
-          <marker id="arrow-security" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--arrow-security)" />
-          </marker>
-        </defs>
+    <marker id="arrow-default" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" class="m-default" />
+    </marker>
+    <marker id="arrow-emphasis" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" class="m-emphasis" />
+    </marker>
+    <marker id="arrow-security" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" class="m-security" />
+    </marker>
+  </defs>
 
-        <!-- Grid Background -->
-        <rect width="1080" height="500" fill="url(#grid)" />
+  <!-- Grid Background -->
+  <rect width="1080" height="500" fill="url(#grid)" />
 
-        <!-- ================= STAGES (SWIMLANES) ================= -->
-        <!-- Stage 0: Client Intake -->
-        <g id="stage-0" class="stage-container">
-          <rect x="40" y="32" width="180" height="446" rx="8" class="c-stage" />
-          <text x="52" y="54" fill="var(--text-muted)" font-size="11" font-weight="700" letter-spacing="0.05em">STAGE 0: INTAKE</text>
-        </g>
+  <!-- ================= STAGES (SWIMLANES) ================= -->
+  <!-- Stage 0: Client Intake -->
+  <g id="stage-0" class="stage-container">
+    <rect x="40" y="32" width="180" height="446" rx="8" class="c-stage" />
+    <text x="52" y="55" fill="#334155" font-size="12" font-weight="700" letter-spacing="0.05em">STAGE 0: INTAKE</text>
+  </g>
 
-        <!-- Stage 1: ACID Boundary -->
-        <g id="stage-1" class="stage-container">
-          <rect x="240" y="32" width="180" height="446" rx="8" class="c-stage" />
-          <text x="252" y="54" fill="var(--security-stroke)" font-size="11" font-weight="700" letter-spacing="0.05em">STAGE 1: ACID BOUNDARY</text>
+  <!-- Stage 1: ACID Boundary -->
+  <g id="stage-1" class="stage-container">
+    <rect x="240" y="32" width="180" height="446" rx="8" class="c-stage" />
+    <text x="252" y="55" fill="#be123c" font-size="12" font-weight="700" letter-spacing="0.05em">STAGE 1: ACID BOUNDARY</text>
 
-          <!-- Inner ACID Boundary Container -->
-          <rect x="247" y="68" width="166" height="398" rx="6" class="c-acid-box" />
-          <text x="255" y="84" fill="var(--security-stroke)" font-size="13" font-weight="600" opacity="0.9">ATOMIC TRANSACTION</text>
-        </g>
+    <!-- Inner ACID Boundary Container -->
+    <rect x="247" y="68" width="166" height="398" rx="6" class="c-acid-box" />
+    <text x="255" y="86" fill="#be123c" font-size="11" font-weight="700" letter-spacing="0.03em">ATOMIC TRANSACTION</text>
+  </g>
 
-        <!-- Stage 2: Dispatch Daemon -->
-        <g id="stage-2" class="stage-container">
-          <rect x="440" y="32" width="180" height="446" rx="8" class="c-stage" />
-          <text x="452" y="54" fill="var(--text-muted)" font-size="11" font-weight="700" letter-spacing="0.05em">STAGE 2: DISPATCH</text>
-        </g>
+  <!-- Stage 2: Dispatch Daemon -->
+  <g id="stage-2" class="stage-container">
+    <rect x="440" y="32" width="180" height="446" rx="8" class="c-stage" />
+    <text x="452" y="55" fill="#334155" font-size="12" font-weight="700" letter-spacing="0.05em">STAGE 2: DISPATCH</text>
+  </g>
 
-        <!-- Stage 3: Worker Execution -->
-        <g id="stage-3" class="stage-container">
-          <rect x="640" y="32" width="180" height="446" rx="8" class="c-stage" />
-          <text x="652" y="54" fill="var(--text-muted)" font-size="11" font-weight="700" letter-spacing="0.05em">STAGE 3: WORKER</text>
-        </g>
+  <!-- Stage 3: Worker Execution -->
+  <g id="stage-3" class="stage-container">
+    <rect x="640" y="32" width="180" height="446" rx="8" class="c-stage" />
+    <text x="652" y="55" fill="#334155" font-size="12" font-weight="700" letter-spacing="0.05em">STAGE 3: WORKER</text>
+  </g>
 
-        <!-- Stage 4: Durable Storage -->
-        <g id="stage-4" class="stage-container">
-          <rect x="840" y="32" width="180" height="446" rx="8" class="c-stage" />
-          <text x="852" y="54" fill="var(--text-muted)" font-size="11" font-weight="700" letter-spacing="0.05em">STAGE 4: VECTOR STORE</text>
-        </g>
+  <!-- Stage 4: Durable Storage -->
+  <g id="stage-4" class="stage-container">
+    <rect x="840" y="32" width="180" height="446" rx="8" class="c-stage" />
+    <text x="852" y="55" fill="#334155" font-size="12" font-weight="700" letter-spacing="0.05em">STAGE 4: VECTOR STORE</text>
+  </g>
 
-        <!-- ================= FLOWS / RELATIONSHIPS ================= -->
-        <!-- Flow 1: Client -> FastAPI (Multipart Upload) -->
-        <g class="flow-group" data-flow="flow_client_api" data-from="client" data-to="fastapi">
-          <path id="path_client_api" class="flow-line a-emphasis" d="M 205 236 L 255 236" marker-end="url(#arrow-emphasis)" />
-          <rect x="210" y="217" width="40" height="15" rx="3" class="c-mask" opacity="0.85"/>
-          <text x="230" y="228" fill="var(--text-muted)" font-size="12" text-anchor="middle">upload</text>
-        </g>
+  <!-- ================= FLOWS / RELATIONSHIPS ================= -->
+  <!-- Flow 1: Client -> FastAPI (Multipart Upload) -->
+  <g class="flow-group">
+    <path id="path_client_api" class="a-emphasis" d="M 205 238 L 255 238" marker-end="url(#arrow-emphasis)" />
+    <rect x="208" y="218" width="46" height="18" rx="4" class="c-mask" />
+    <text x="231" y="231" fill="#0f172a" font-size="11.5" font-weight="600" text-anchor="middle">upload</text>
+  </g>
 
-        <!-- Flow 2: FastAPI -> docs_table (commit metadata) -->
-        <g class="flow-group" data-flow="flow_api_docs" data-from="fastapi" data-to="docs_table">
-          <path id="path_api_docs" class="flow-line a-security" d="M 330 205 L 330 170" marker-end="url(#arrow-security)" />
-          <rect x="335" y="180" width="70" height="14" rx="3" class="c-mask" opacity="0.85"/>
-          <text x="337" y="190" fill="var(--security-stroke)" font-size="12" font-weight="600">commit meta</text>
-        </g>
+  <!-- Flow 2: FastAPI -> docs_table (commit metadata) -->
+  <g class="flow-group">
+    <path id="path_api_docs" class="a-security" d="M 330 205 L 330 171" marker-end="url(#arrow-security)" />
+    <rect x="334" y="177" width="86" height="18" rx="4" class="c-mask" />
+    <text x="377" y="190" fill="#be123c" font-size="11.5" font-weight="700" text-anchor="middle">commit meta</text>
+  </g>
 
-        <!-- Flow 3: FastAPI -> outbox_table (stage outbox event) -->
-        <g class="flow-group" data-flow="flow_api_outbox" data-from="fastapi" data-to="outbox_table">
-          <path id="path_api_outbox" class="flow-line a-security" d="M 330 267 L 330 300" marker-end="url(#arrow-security)" />
-          <rect x="335" y="276" width="74" height="14" rx="3" class="c-mask" opacity="0.85"/>
-          <text x="337" y="286" fill="var(--security-stroke)" font-size="12" font-weight="600">stage outbox</text>
-        </g>
+  <!-- Flow 3: FastAPI -> outbox_table (stage outbox event) -->
+  <g class="flow-group">
+    <path id="path_api_outbox" class="a-security" d="M 330 271 L 330 300" marker-end="url(#arrow-security)" />
+    <rect x="334" y="274" width="86" height="18" rx="4" class="c-mask" />
+    <text x="377" y="287" fill="#be123c" font-size="11.5" font-weight="700" text-anchor="middle">stage outbox</text>
+  </g>
 
-        <!-- Flow 4: outbox_table -> dispatcher (claim pending batch SKIP LOCKED) -->
-        <g class="flow-group" data-flow="flow_outbox_dispatcher" data-from="outbox_table" data-to="dispatcher">
-          <path id="path_outbox_dispatcher" class="flow-line a-emphasis" d="M 405 330 L 455 330" marker-end="url(#arrow-emphasis)" />
-          <rect x="410" y="311" width="40" height="15" rx="3" class="c-mask" opacity="0.85"/>
-          <text x="430" y="322" fill="var(--text-muted)" font-size="12" text-anchor="middle">claim</text>
-        </g>
+  <!-- Flow 4: outbox_table -> dispatcher (claim pending batch SKIP LOCKED) -->
+  <g class="flow-group">
+    <path id="path_outbox_dispatcher" class="a-emphasis" d="M 405 333 L 455 333" marker-end="url(#arrow-emphasis)" />
+    <rect x="408" y="313" width="44" height="18" rx="4" class="c-mask" />
+    <text x="430" y="326" fill="#047857" font-size="11.5" font-weight="700" text-anchor="middle">claim</text>
+  </g>
 
-        <!-- Flow 5: dispatcher -> redis (enqueue task payload) -->
-        <g class="flow-group" data-flow="flow_dispatcher_redis" data-from="dispatcher" data-to="redis">
-          <path id="path_dispatcher_redis" class="flow-line a-default" d="M 530 300 L 530 236 L 655 236" marker-end="url(#arrow-default)" />
-          <rect x="548" y="227" width="90" height="16" rx="3" class="c-mask" opacity="0.85"/>
-          <text x="593" y="238" fill="var(--text-muted)" font-size="12" text-anchor="middle">enqueue task</text>
-        </g>
+  <!-- Flow 5: dispatcher -> redis (enqueue task payload) -->
+  <g class="flow-group">
+    <path id="path_dispatcher_redis" class="a-default" d="M 530 300 L 530 238 L 655 238" marker-end="url(#arrow-default)" />
+    <rect x="546" y="228" width="94" height="18" rx="4" class="c-mask" />
+    <text x="593" y="241" fill="#0f172a" font-size="11.5" font-weight="600" text-anchor="middle">enqueue task</text>
+  </g>
 
-        <!-- Flow 6: redis -> worker (consume task message) -->
-        <g class="flow-group" data-flow="flow_redis_worker" data-from="redis" data-to="worker">
-          <path id="path_redis_worker" class="flow-line a-emphasis" d="M 730 267 L 730 395" marker-end="url(#arrow-emphasis)" />
-          <rect x="736" y="323" width="70" height="16" rx="3" class="c-mask" opacity="0.85"/>
-          <text x="738" y="334" fill="var(--text-muted)" font-size="12">consume task</text>
-        </g>
+  <!-- Flow 6: redis -> worker (consume task message) -->
+  <g class="flow-group">
+    <path id="path_redis_worker" class="a-emphasis" d="M 730 271 L 730 395" marker-end="url(#arrow-emphasis)" />
+    <rect x="684" y="292" width="92" height="18" rx="4" class="c-mask" />
+    <text x="730" y="305" fill="#047857" font-size="11.5" font-weight="700" text-anchor="middle">consume task</text>
+  </g>
 
-        <!-- Flow 7: worker -> fastembed (pass chunks) -->
-        <g class="flow-group" data-flow="flow_worker_fastembed" data-from="worker" data-to="fastembed">
-          <path id="path_worker_fastembed" class="flow-line a-default" d="M 805 425 L 830 425 L 830 236 L 855 236" marker-end="url(#arrow-default)" />
-          <rect x="806" y="323" width="48" height="16" rx="3" class="c-mask" opacity="0.85"/>
-          <text x="830" y="334" fill="var(--text-muted)" font-size="12" text-anchor="middle">chunks</text>
-        </g>
+  <!-- Flow 7: worker -> fastembed (pass chunks) -->
+  <g class="flow-group">
+    <path id="path_worker_fastembed" class="a-default" d="M 805 428 L 830 428 L 830 238 L 855 238" marker-end="url(#arrow-default)" />
+    <rect x="805" y="342" width="50" height="18" rx="4" class="c-mask" />
+    <text x="830" y="355" fill="#0f172a" font-size="11.5" font-weight="600" text-anchor="middle">chunks</text>
+  </g>
 
-        <!-- Flow 8: fastembed -> chunks_table (write vectors + tsvector) -->
-        <g class="flow-group" data-flow="flow_fastembed_chunks" data-from="fastembed" data-to="chunks_table">
-          <path id="path_fastembed_chunks" class="flow-line a-emphasis" d="M 930 267 L 930 395" marker-end="url(#arrow-emphasis)" />
-          <rect x="936" y="323" width="68" height="16" rx="3" class="c-mask" opacity="0.85"/>
-          <text x="938" y="334" fill="var(--arrow-emphasis)" font-size="12" font-weight="600">write HNSW</text>
-        </g>
+  <!-- Flow 8: fastembed -> chunks_table (write vectors + tsvector) -->
+  <g class="flow-group">
+    <path id="path_fastembed_chunks" class="a-emphasis" d="M 930 271 L 930 395" marker-end="url(#arrow-emphasis)" />
+    <rect x="884" y="323" width="92" height="18" rx="4" class="c-mask" />
+    <text x="930" y="336" fill="#047857" font-size="11.5" font-weight="700" text-anchor="middle">write HNSW</text>
+  </g>
 
-        <!-- ================= NODES ================= -->
-        <!-- Node 1: client (Stage 0, Row 1) -->
-        <g id="node-client" class="node-group" data-node="client">
-          <rect x="55" y="205" width="150" height="62" rx="6" class="node-box c-external" />
-          <text x="67" y="228" fill="var(--text)" font-size="12" font-weight="600">Client Upload</text>
-          <text x="67" y="244" fill="var(--text-muted)" font-size="13">Multipart File</text>
-          <rect x="67" y="251" width="58" height="12" rx="2" fill="rgba(148, 163, 184, 0.2)" />
-          <text x="70" y="260" fill="var(--text-muted)" font-size="12">HTTP 202</text>
-        </g>
+  <!-- ================= NODES ================= -->
+  <!-- Node 1: client (Stage 0, Row 1) -->
+  <g id="node-client" class="node-group">
+    <rect x="55" y="205" width="150" height="66" rx="8" class="node-box c-external" />
+    <text x="67" y="228" fill="#0f172a" font-size="13" font-weight="700">Client Upload</text>
+    <text x="67" y="245" fill="#334155" font-size="12">Multipart File</text>
+    <rect x="67" y="251" width="62" height="15" rx="3" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="0.75" />
+    <text x="73" y="262" fill="#334155" font-size="10.5" font-weight="600">HTTP 202</text>
+  </g>
 
-        <!-- Node 2: docs_table (Stage 1, Row 0) -->
-        <g id="node-docs_table" class="node-group" data-node="docs_table">
-          <rect x="255" y="110" width="150" height="60" rx="6" class="node-box c-database" />
-          <text x="267" y="132" fill="var(--text)" font-size="12" font-weight="600">documents</text>
-          <text x="267" y="148" fill="var(--text-muted)" font-size="13">metadata &amp; version</text>
-          <rect x="267" y="154" width="76" height="12" rx="2" fill="rgba(167, 139, 250, 0.2)" />
-          <text x="270" y="163" fill="#a78bfa" font-size="12">PostgreSQL 16</text>
-        </g>
+  <!-- Node 2: docs_table (Stage 1, Row 0) -->
+  <g id="node-docs_table" class="node-group">
+    <rect x="255" y="105" width="150" height="66" rx="8" class="node-box c-database" />
+    <text x="267" y="128" fill="#0f172a" font-size="13" font-weight="700">documents</text>
+    <text x="267" y="145" fill="#334155" font-size="12">metadata &amp; version</text>
+    <rect x="267" y="151" width="86" height="15" rx="3" fill="#ede9fe" stroke="#c4b5fd" stroke-width="0.75" />
+    <text x="272" y="162" fill="#6d28d9" font-size="10.5" font-weight="600">PostgreSQL 16</text>
+  </g>
 
-        <!-- Node 3: fastapi (Stage 1, Row 1) -->
-        <g id="node-fastapi" class="node-group" data-node="fastapi">
-          <rect x="255" y="205" width="150" height="62" rx="6" class="node-box c-backend" />
-          <text x="267" y="228" fill="var(--text)" font-size="12" font-weight="600">FastAPI Ingest</text>
-          <text x="267" y="244" fill="var(--text-muted)" font-size="13">Unit of Work</text>
-          <rect x="267" y="251" width="70" height="12" rx="2" fill="rgba(52, 211, 153, 0.2)" />
-          <text x="270" y="260" fill="#34d399" font-size="12">SQLAlchemy</text>
-        </g>
+  <!-- Node 3: fastapi (Stage 1, Row 1) -->
+  <g id="node-fastapi" class="node-group">
+    <rect x="255" y="205" width="150" height="66" rx="8" class="node-box c-backend" />
+    <text x="267" y="228" fill="#0f172a" font-size="13" font-weight="700">FastAPI Ingest</text>
+    <text x="267" y="245" fill="#334155" font-size="12">Unit of Work</text>
+    <rect x="267" y="251" width="76" height="15" rx="3" fill="#d1fae5" stroke="#a7f3d0" stroke-width="0.75" />
+    <text x="272" y="262" fill="#047857" font-size="10.5" font-weight="600">SQLAlchemy</text>
+  </g>
 
-        <!-- Node 4: outbox_table (Stage 1, Row 2) -->
-        <g id="node-outbox_table" class="node-group" data-node="outbox_table">
-          <rect x="255" y="300" width="150" height="60" rx="6" class="node-box c-database" />
-          <text x="267" y="322" fill="var(--text)" font-size="11.5" font-weight="600">job_dispatch_outbox</text>
-          <text x="267" y="338" fill="var(--text-muted)" font-size="13">event queue</text>
-          <rect x="267" y="344" width="80" height="12" rx="2" fill="rgba(167, 139, 250, 0.2)" />
-          <text x="270" y="353" fill="#a78bfa" font-size="12">status: pending</text>
-        </g>
+  <!-- Node 4: outbox_table (Stage 1, Row 2) -->
+  <g id="node-outbox_table" class="node-group">
+    <rect x="255" y="300" width="150" height="66" rx="8" class="node-box c-database" />
+    <text x="267" y="322" fill="#0f172a" font-size="12" font-weight="700">job_dispatch_outbox</text>
+    <text x="267" y="339" fill="#334155" font-size="12">event queue</text>
+    <rect x="267" y="345" width="90" height="15" rx="3" fill="#ede9fe" stroke="#c4b5fd" stroke-width="0.75" />
+    <text x="272" y="356" fill="#6d28d9" font-size="10.5" font-weight="600">status: pending</text>
+  </g>
 
-        <!-- Node 5: dispatcher (Stage 2, Row 2) -->
-        <g id="node-dispatcher" class="node-group" data-node="dispatcher">
-          <rect x="455" y="300" width="150" height="60" rx="6" class="node-box c-backend" />
-          <text x="467" y="322" fill="var(--text)" font-size="12" font-weight="600">Outbox Dispatcher</text>
-          <text x="467" y="338" fill="var(--text-muted)" font-size="13">SKIP LOCKED</text>
-          <rect x="467" y="344" width="72" height="12" rx="2" fill="rgba(52, 211, 153, 0.2)" />
-          <text x="470" y="353" fill="#34d399" font-size="12">Polling Loop</text>
-        </g>
+  <!-- Node 5: dispatcher (Stage 2, Row 2) -->
+  <g id="node-dispatcher" class="node-group">
+    <rect x="455" y="300" width="150" height="66" rx="8" class="node-box c-backend" />
+    <text x="467" y="323" fill="#0f172a" font-size="13" font-weight="700">Outbox Dispatcher</text>
+    <text x="467" y="340" fill="#334155" font-size="12">SKIP LOCKED</text>
+    <rect x="467" y="346" width="76" height="15" rx="3" fill="#d1fae5" stroke="#a7f3d0" stroke-width="0.75" />
+    <text x="472" y="357" fill="#047857" font-size="10.5" font-weight="600">Polling Loop</text>
+  </g>
 
-        <!-- Node 6: redis (Stage 3, Row 1) -->
-        <g id="node-redis" class="node-group" data-node="redis">
-          <rect x="655" y="205" width="150" height="62" rx="6" class="node-box c-messagebus" />
-          <text x="667" y="228" fill="var(--text)" font-size="12" font-weight="600">Redis 8 Broker</text>
-          <text x="667" y="244" fill="var(--text-muted)" font-size="13">dramatiq:default</text>
-          <rect x="667" y="251" width="94" height="12" rx="2" fill="rgba(251, 146, 60, 0.2)" />
-          <text x="670" y="260" fill="#fb923c" font-size="12">In-Memory Queue</text>
-        </g>
+  <!-- Node 6: redis (Stage 3, Row 1) -->
+  <g id="node-redis" class="node-group">
+    <rect x="655" y="205" width="150" height="66" rx="8" class="node-box c-messagebus" />
+    <text x="667" y="228" fill="#0f172a" font-size="13" font-weight="700">Redis 8 Broker</text>
+    <text x="667" y="245" fill="#334155" font-size="12">dramatiq:default</text>
+    <rect x="667" y="251" width="104" height="15" rx="3" fill="#ffedd5" stroke="#fed7aa" stroke-width="0.75" />
+    <text x="672" y="262" fill="#c2410c" font-size="10.5" font-weight="600">In-Memory Queue</text>
+  </g>
 
-        <!-- Node 7: worker (Stage 3, Row 3) -->
-        <g id="node-worker" class="node-group" data-node="worker">
-          <rect x="655" y="395" width="150" height="60" rx="6" class="node-box c-backend" />
-          <text x="667" y="417" fill="var(--text)" font-size="12" font-weight="600">Dramatiq Worker</text>
-          <text x="667" y="433" fill="var(--text-muted)" font-size="13">chunking pipeline</text>
-          <rect x="667" y="439" width="76" height="12" rx="2" fill="rgba(52, 211, 153, 0.2)" />
-          <text x="670" y="448" fill="#34d399" font-size="12">Actor Process</text>
-        </g>
+  <!-- Node 7: worker (Stage 3, Row 3) -->
+  <g id="node-worker" class="node-group">
+    <rect x="655" y="395" width="150" height="66" rx="8" class="node-box c-backend" />
+    <text x="667" y="418" fill="#0f172a" font-size="13" font-weight="700">Dramatiq Worker</text>
+    <text x="667" y="435" fill="#334155" font-size="12">chunking pipeline</text>
+    <rect x="667" y="441" width="82" height="15" rx="3" fill="#d1fae5" stroke="#a7f3d0" stroke-width="0.75" />
+    <text x="672" y="452" fill="#047857" font-size="10.5" font-weight="600">Actor Process</text>
+  </g>
 
-        <!-- Node 8: fastembed (Stage 4, Row 1) -->
-        <g id="node-fastembed" class="node-group" data-node="fastembed">
-          <rect x="855" y="205" width="150" height="62" rx="6" class="node-box c-backend" />
-          <text x="867" y="228" fill="var(--text)" font-size="12" font-weight="600">FastEmbed ONNX</text>
-          <text x="867" y="244" fill="var(--text-muted)" font-size="13">bge-small-en-v1.5</text>
-          <rect x="867" y="251" width="66" height="12" rx="2" fill="rgba(52, 211, 153, 0.2)" />
-          <text x="870" y="260" fill="#34d399" font-size="12">Dense 384d</text>
-        </g>
+  <!-- Node 8: fastembed (Stage 4, Row 1) -->
+  <g id="node-fastembed" class="node-group">
+    <rect x="855" y="205" width="150" height="66" rx="8" class="node-box c-backend" />
+    <text x="867" y="228" fill="#0f172a" font-size="13" font-weight="700">FastEmbed ONNX</text>
+    <text x="867" y="245" fill="#334155" font-size="12">bge-small-en-v1.5</text>
+    <rect x="867" y="251" width="76" height="15" rx="3" fill="#d1fae5" stroke="#a7f3d0" stroke-width="0.75" />
+    <text x="872" y="262" fill="#047857" font-size="10.5" font-weight="600">Dense 384d</text>
+  </g>
 
-        <!-- Node 9: chunks_table (Stage 4, Row 3) -->
-        <g id="node-chunks_table" class="node-group" data-node="chunks_table">
-          <rect x="855" y="395" width="150" height="60" rx="6" class="node-box c-database" />
-          <text x="867" y="417" fill="var(--text)" font-size="12" font-weight="600">document_chunks</text>
-          <text x="867" y="433" fill="var(--text-muted)" font-size="13">HNSW + GIN tsvector</text>
-          <rect x="867" y="439" width="74" height="12" rx="2" fill="rgba(167, 139, 250, 0.2)" />
-          <text x="870" y="448" fill="#a78bfa" font-size="12">Vector Store</text>
-        </g>
-      </svg>
+  <!-- Node 9: chunks_table (Stage 4, Row 3) -->
+  <g id="node-chunks_table" class="node-group">
+    <rect x="855" y="395" width="150" height="66" rx="8" class="node-box c-database" />
+    <text x="867" y="418" fill="#0f172a" font-size="12.5" font-weight="700">document_chunks</text>
+    <text x="867" y="435" fill="#334155" font-size="12">HNSW + GIN tsvector</text>
+    <rect x="867" y="441" width="80" height="15" rx="3" fill="#ede9fe" stroke="#c4b5fd" stroke-width="0.75" />
+    <text x="872" y="452" fill="#6d28d9" font-size="10.5" font-weight="600">Vector Store</text>
+  </g>
+</svg>

@@ -23,7 +23,7 @@
     /* Backgrounds and Frames */
     .c-bg { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
     .c-grid { stroke: #f1f5f9; fill: none; stroke-width: 1; }
-    .c-mask { fill: #ffffff; stroke: none; }
+    .c-mask { fill: #ffffff !important; stroke: #cbd5e1 !important; stroke-width: 1; }
     .c-lane { fill: #f8fafc !important; stroke: #cbd5e1 !important; stroke-width: 1.5; }
     .node-box { stroke-width: 1.5; }
 
@@ -227,49 +227,49 @@
         <g data-node-id="client">
           <rect x="20" y="65" width="90" height="54" rx="6" class="c-mask"/>
           <rect x="20" y="65" width="90" height="54" rx="6" class="c-external" stroke-width="1.5"/>
-          <text x="65" y="87" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">Client UI</text>
-          <text x="65" y="103" class="t-muted" font-size="7.5" text-anchor="middle">Browser / REST</text>
+          <text x="65" y="87" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">Client UI</text>
+          <text x="65" y="103" class="t-muted" font-size="12.5" text-anchor="middle">Browser / REST</text>
         </g>
 
         <g data-node-id="api">
           <rect x="150" y="65" width="90" height="54" rx="6" class="c-mask"/>
           <rect x="150" y="65" width="90" height="54" rx="6" class="c-backend" stroke-width="1.5"/>
-          <text x="195" y="87" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">FastAPI</text>
-          <text x="195" y="103" class="t-muted" font-size="7.5" text-anchor="middle">Stream Handler</text>
+          <text x="195" y="87" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">FastAPI</text>
+          <text x="195" y="103" class="t-muted" font-size="12.5" text-anchor="middle">Stream Handler</text>
         </g>
 
         <g data-node-id="agent">
           <rect x="280" y="65" width="90" height="54" rx="6" class="c-mask"/>
           <rect x="280" y="65" width="90" height="54" rx="6" class="c-backend" stroke-width="1.5"/>
-          <text x="325" y="87" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">LangGraph</text>
-          <text x="325" y="103" class="t-muted" font-size="7.5" text-anchor="middle">StateGraph Core</text>
+          <text x="325" y="87" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">LangGraph</text>
+          <text x="325" y="103" class="t-muted" font-size="12.5" text-anchor="middle">StateGraph Core</text>
         </g>
 
         <g data-node-id="postgres">
           <rect x="410" y="65" width="90" height="54" rx="6" class="c-mask"/>
           <rect x="410" y="65" width="90" height="54" rx="6" class="c-database" stroke-width="1.5"/>
-          <text x="455" y="87" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">PostgreSQL</text>
-          <text x="455" y="103" class="t-muted" font-size="7.5" text-anchor="middle">HNSW + BM25</text>
+          <text x="455" y="87" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">PostgreSQL</text>
+          <text x="455" y="103" class="t-muted" font-size="12.5" text-anchor="middle">HNSW + BM25</text>
         </g>
 
         <g data-node-id="reranker">
           <rect x="540" y="65" width="90" height="54" rx="6" class="c-mask"/>
           <rect x="540" y="65" width="90" height="54" rx="6" class="c-backend" stroke-width="1.5"/>
-          <text x="585" y="87" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">FlashRank</text>
-          <text x="585" y="103" class="t-muted" font-size="7.5" text-anchor="middle">Cross-Encoder</text>
+          <text x="585" y="87" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">FlashRank</text>
+          <text x="585" y="103" class="t-muted" font-size="12.5" text-anchor="middle">Cross-Encoder</text>
         </g>
 
         <g data-node-id="web">
           <rect x="670" y="65" width="90" height="54" rx="6" class="c-mask"/>
           <rect x="670" y="65" width="90" height="54" rx="6" class="c-cloud" stroke-width="1.5"/>
-          <text x="715" y="87" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">Web Search</text>
-          <text x="715" y="103" class="t-muted" font-size="7.5" text-anchor="middle">CRAG Fallback</text>
+          <text x="715" y="87" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">Web Search</text>
+          <text x="715" y="103" class="t-muted" font-size="12.5" text-anchor="middle">CRAG Fallback</text>
         </g>
 
         <g data-node-id="groq">
           <rect x="800" y="65" width="90" height="54" rx="6" class="c-mask"/>
           <rect x="800" y="65" width="90" height="54" rx="6" class="c-cloud" stroke-width="1.5"/>
-          <text x="845" y="87" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">Groq LPU</text>
-          <text x="845" y="103" class="t-muted" font-size="7.5" text-anchor="middle">Llama-3.3-70b</text>
+          <text x="845" y="87" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">Groq LPU</text>
+          <text x="845" y="103" class="t-muted" font-size="12.5" text-anchor="middle">Llama-3.3-70b</text>
         </g>
       </svg>

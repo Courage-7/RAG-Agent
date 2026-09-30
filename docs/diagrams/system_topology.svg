@@ -23,7 +23,7 @@
     /* Backgrounds and Frames */
     .c-bg { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
     .c-grid { stroke: #f1f5f9; fill: none; stroke-width: 1; }
-    .c-mask { fill: #ffffff; stroke: none; }
+    .c-mask { fill: #ffffff !important; stroke: #cbd5e1 !important; stroke-width: 1; }
     .c-lane { fill: #f8fafc !important; stroke: #cbd5e1 !important; stroke-width: 1.5; }
     .node-box { stroke-width: 1.5; }
 
@@ -135,80 +135,80 @@
         <g data-node-id="client">
           <rect x="40" y="150" width="120" height="64" rx="6" class="c-mask"/>
           <rect x="40" y="150" width="120" height="64" rx="6" class="c-frontend" stroke-width="1.5"/>
-          <text x="100" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Web Console</text>
+          <text x="100" y="174" class="t-primary" font-size="12.5" font-weight="600" text-anchor="middle">Web Console</text>
           <text x="100" y="190" class="t-muted" font-size="12" text-anchor="middle">Browser / SSE UI</text>
-          <text x="100" y="202" class="t-backend" font-size="7" text-anchor="middle">Port 8000</text>
+          <text x="100" y="202" class="t-backend" font-size="12.5" text-anchor="middle">Port 8000</text>
         </g>
 
         <g data-node-id="api">
           <rect x="230" y="150" width="140" height="64" rx="6" class="c-mask"/>
           <rect x="230" y="150" width="140" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
-          <text x="300" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">FastAPI Gateway</text>
+          <text x="300" y="174" class="t-primary" font-size="12.5" font-weight="600" text-anchor="middle">FastAPI Gateway</text>
           <text x="300" y="190" class="t-muted" font-size="12" text-anchor="middle">HTTP &amp; SSE Stream</text>
-          <text x="300" y="202" class="t-backend" font-size="7" text-anchor="middle">Uvicorn ASGI</text>
+          <text x="300" y="202" class="t-backend" font-size="12.5" text-anchor="middle">Uvicorn ASGI</text>
         </g>
 
         <g data-node-id="langgraph">
           <rect x="450" y="150" width="150" height="64" rx="6" class="c-mask"/>
           <rect x="450" y="150" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
-          <text x="525" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">LangGraph Core</text>
+          <text x="525" y="174" class="t-primary" font-size="12.5" font-weight="600" text-anchor="middle">LangGraph Core</text>
           <text x="525" y="190" class="t-muted" font-size="12" text-anchor="middle">Adaptive StateGraph</text>
-          <text x="525" y="202" class="t-backend" font-size="7" text-anchor="middle">Bounded FSM</text>
+          <text x="525" y="202" class="t-backend" font-size="12.5" text-anchor="middle">Bounded FSM</text>
         </g>
 
         <g data-node-id="groq">
           <rect x="690" y="150" width="140" height="64" rx="6" class="c-mask"/>
           <rect x="690" y="150" width="140" height="64" rx="6" class="c-cloud" stroke-width="1.5"/>
-          <text x="760" y="174" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Groq LPU Engine</text>
+          <text x="760" y="174" class="t-primary" font-size="12.5" font-weight="600" text-anchor="middle">Groq LPU Engine</text>
           <text x="760" y="190" class="t-muted" font-size="12" text-anchor="middle">Llama-3.1/3.3 LPUs</text>
-          <text x="760" y="202" class="t-cloud" font-size="7" text-anchor="middle">Fast Inference</text>
+          <text x="760" y="202" class="t-cloud" font-size="12.5" text-anchor="middle">Fast Inference</text>
         </g>
 
         <g data-node-id="postgres">
           <rect x="450" y="325" width="150" height="68" rx="6" class="c-mask"/>
           <rect x="450" y="325" width="150" height="68" rx="6" class="c-database" stroke-width="1.5"/>
-          <text x="525" y="348" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">PostgreSQL 16</text>
+          <text x="525" y="348" class="t-primary" font-size="12.5" font-weight="600" text-anchor="middle">PostgreSQL 16</text>
           <text x="525" y="364" class="t-muted" font-size="12" text-anchor="middle">HNSW (m=16) + GIN</text>
-          <text x="525" y="377" class="t-database" font-size="7" text-anchor="middle">RRF Fusion k=60</text>
+          <text x="525" y="377" class="t-database" font-size="12.5" text-anchor="middle">RRF Fusion k=60</text>
         </g>
 
         <g data-node-id="flashrank">
           <rect x="690" y="325" width="140" height="68" rx="6" class="c-mask"/>
           <rect x="690" y="325" width="140" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
-          <text x="760" y="348" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">FlashRank Rescorer</text>
+          <text x="760" y="348" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">FlashRank Rescorer</text>
           <text x="760" y="364" class="t-muted" font-size="12" text-anchor="middle">TinyBERT-L-2-v2</text>
-          <text x="760" y="377" class="t-backend" font-size="7" text-anchor="middle">Local ONNX CPU</text>
+          <text x="760" y="377" class="t-backend" font-size="12.5" text-anchor="middle">Local ONNX CPU</text>
         </g>
 
         <g data-node-id="dispatcher">
           <rect x="230" y="325" width="140" height="68" rx="6" class="c-mask"/>
           <rect x="230" y="325" width="140" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
-          <text x="300" y="348" class="t-primary" font-size="10.5" font-weight="600" text-anchor="middle">Outbox Dispatcher</text>
+          <text x="300" y="348" class="t-primary" font-size="13" font-weight="600" text-anchor="middle">Outbox Dispatcher</text>
           <text x="300" y="364" class="t-muted" font-size="12" text-anchor="middle">SKIP LOCKED Daemon</text>
-          <text x="300" y="377" class="t-backend" font-size="7" text-anchor="middle">Polling Batch 10</text>
+          <text x="300" y="377" class="t-backend" font-size="12.5" text-anchor="middle">Polling Batch 10</text>
         </g>
 
         <g data-node-id="redis">
           <rect x="230" y="480" width="140" height="64" rx="6" class="c-mask"/>
           <rect x="230" y="480" width="140" height="64" rx="6" class="c-messagebus" stroke-width="1.5"/>
-          <text x="300" y="504" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Redis 8 Broker</text>
+          <text x="300" y="504" class="t-primary" font-size="12.5" font-weight="600" text-anchor="middle">Redis 8 Broker</text>
           <text x="300" y="520" class="t-muted" font-size="12" text-anchor="middle">dramatiq:default</text>
-          <text x="300" y="532" class="t-messagebus" font-size="7" text-anchor="middle">Append-Only File</text>
+          <text x="300" y="532" class="t-messagebus" font-size="12.5" text-anchor="middle">Append-Only File</text>
         </g>
 
         <g data-node-id="dramatiq">
           <rect x="450" y="480" width="150" height="64" rx="6" class="c-mask"/>
           <rect x="450" y="480" width="150" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
-          <text x="525" y="504" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Dramatiq Workers</text>
+          <text x="525" y="504" class="t-primary" font-size="12.5" font-weight="600" text-anchor="middle">Dramatiq Workers</text>
           <text x="525" y="520" class="t-muted" font-size="12" text-anchor="middle">Parsing &amp; Chunking</text>
-          <text x="525" y="532" class="t-backend" font-size="7" text-anchor="middle">Thread Pool</text>
+          <text x="525" y="532" class="t-backend" font-size="12.5" text-anchor="middle">Thread Pool</text>
         </g>
 
         <g data-node-id="fastembed">
           <rect x="690" y="480" width="140" height="64" rx="6" class="c-mask"/>
           <rect x="690" y="480" width="140" height="64" rx="6" class="c-backend" stroke-width="1.5"/>
-          <text x="760" y="504" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">FastEmbed ONNX</text>
+          <text x="760" y="504" class="t-primary" font-size="12.5" font-weight="600" text-anchor="middle">FastEmbed ONNX</text>
           <text x="760" y="520" class="t-muted" font-size="12" text-anchor="middle">bge-small-en-v1.5</text>
-          <text x="760" y="532" class="t-backend" font-size="7" text-anchor="middle">Dense 384d Vectors</text>
+          <text x="760" y="532" class="t-backend" font-size="12.5" text-anchor="middle">Dense 384d Vectors</text>
         </g>
       </svg>
