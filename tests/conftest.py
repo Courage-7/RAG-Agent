@@ -26,14 +26,40 @@ def pytest_configure(config: pytest.Config) -> None:
     )
 
 
+def _is_port_reachable(host: str, port: int, timeout: float = 0.5) -> bool:
+    import socket
+
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
     has_groq = bool(os.getenv("GROQ_API_KEY") or os.getenv("RAG_GROQ_API_KEY"))
     skip_live = pytest.mark.skip(
         reason="GROQ_API_KEY is not set. Set GROQ_API_KEY in .env to run live tests."
     )
+
+    db_reachable = _is_port_reachable("127.0.0.1", 54322)
+    redis_reachable = _is_port_reachable("127.0.0.1", 6379)
+
+    skip_db = pytest.mark.skip(
+        reason="PostgreSQL unreachable at 127.0.0.1:54322; skipping integration tests."
+    )
+    skip_redis = pytest.mark.skip(
+        reason="Redis is not reachable at 127.0.0.1:6379. Start Redis to run integration tests."
+    )
+
     for item in items:
         if "live" in item.keywords and not has_groq:
             item.add_marker(skip_live)
+        if "integration" in item.keywords:
+            if not db_reachable:
+                item.add_marker(skip_db)
+            elif not redis_reachable:
+                item.add_marker(skip_redis)
 
 
 @pytest.fixture(scope="session")
