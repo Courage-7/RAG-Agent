@@ -67,7 +67,7 @@ def check_workspace_access(user: UserIdentity, target_workspace_id: UUID) -> Non
     if "service_role" in user.roles or "admin" in user.roles:
         return
 
-    if user.workspace_ids and target_workspace_id not in user.workspace_ids:
+    if not user.workspace_ids or target_workspace_id not in user.workspace_ids:
         raise AuthorizationError(
             f"User {user.user_id} is not a member of workspace {target_workspace_id}"
         )

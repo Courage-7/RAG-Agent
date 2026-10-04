@@ -104,3 +104,16 @@ def test_check_workspace_access_allows_admin() -> None:
     )
     # Service role bypasses workspace restriction
     check_workspace_access(user, arbitrary_ws)
+
+
+def test_check_workspace_access_blocks_user_with_empty_workspaces() -> None:
+    user_id = uuid4()
+    target_ws = uuid4()
+    user = UserIdentity(
+        user_id=user_id,
+        email="regular@test.com",
+        roles=("authenticated",),
+        workspace_ids=(),
+    )
+    with pytest.raises(AuthorizationError, match="not a member"):
+        check_workspace_access(user, target_ws)

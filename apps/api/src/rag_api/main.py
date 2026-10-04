@@ -1,27 +1,50 @@
+import functools
 import json
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 from typing import Annotated, Any, Literal
-from uuid import UUID
+from uuid import UUID, uuid4
 
+import anyio
 import structlog
-from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile, status
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi import (
+    Depends,
+    FastAPI,
+    File,
+    Form,
+    Header,
+    HTTPException,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from psycopg_pool import AsyncConnectionPool
 from pydantic import BaseModel, Field
 from rag_core.agent.graph import AdaptiveRagGraph
+from rag_core.auth.models import UserIdentity
+from rag_core.auth.tokens import SupabaseTokenVerifier, check_workspace_access
 from rag_core.config import AppSettings, get_settings
 from rag_core.database.connection import check_database_health, create_async_pool
 from rag_core.database.redis import check_redis_health
-from rag_core.errors import DocumentParsingError
+from rag_core.errors import AuthenticationError, AuthorizationError, DocumentParsingError
 from rag_core.ingestion.parsers import DocumentParser
 from rag_core.ingestion.repository import create_ingestion_job
 from rag_core.jobs.models import JobStatus
 from rag_core.models.contracts import ChatMessage
+from rag_core.models.groq import GroqChatModelProvider
 from rag_core.observability.logging import configure_logging
+from rag_core.retrieval.embeddings import FastEmbedProvider
+from rag_core.retrieval.hybrid import HybridRetriever
 from rag_core.retrieval.models import AnswerStatus, GroundedAnswer
+from rag_core.retrieval.reranker import FlashRankReranker
 from rag_core.retrieval.service import QueryRequest, RagService
+
+logger = structlog.get_logger(__name__)
+
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024  # 20MB
 
 
 class LivenessResponse(BaseModel):
@@ -39,7 +62,7 @@ class IngestionRequest(BaseModel):
     workspace_id: UUID
     knowledge_base_id: UUID
     title: str = Field(min_length=1, max_length=500)
-    content: str = Field(min_length=1)
+    content: str = Field(min_length=1, max_length=5_000_000)
     idempotency_key: str | None = Field(default=None, min_length=8, max_length=200)
 
 
@@ -53,9 +76,9 @@ class IngestionResponse(BaseModel):
 class AgentQueryRequest(BaseModel):
     query: str = Field(min_length=1)
     workspace_id: UUID
-    user_id: UUID
-    knowledge_base_ids: tuple[UUID, ...] = ()
-    chat_history: tuple[ChatMessage, ...] = ()
+    user_id: UUID | None = None
+    knowledge_base_ids: tuple[UUID, ...] = Field(min_length=1)
+    chat_history: tuple[ChatMessage, ...] = Field(default=(), max_length=100)
     thread_id: str | None = None
 
 
@@ -81,6 +104,79 @@ async def _readiness_checks(settings: AppSettings) -> dict[str, bool]:
     return checks
 
 
+async def get_current_user(
+    request: Request,
+    authorization: Annotated[str | None, Header()] = None,
+) -> UserIdentity:
+    """Extract and verify user identity via Supabase JWT or provide dev bypass."""
+    settings: AppSettings = request.app.state.settings
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.split("Bearer ", 1)[1].strip()
+        jwt_secret = (
+            settings.supabase_jwt_secret.get_secret_value()
+            if settings.supabase_jwt_secret
+            else "super-secret-jwt-token-with-at-least-32-characters-long"
+        )
+        verifier = SupabaseTokenVerifier(secret_or_public_key=jwt_secret)
+        return verifier.verify(token)
+
+    if settings.is_auth_enforced:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing or invalid authentication token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Dev/test bypass identity with administrative access
+    return UserIdentity(
+        user_id=UUID("00000000-0000-0000-0000-000000000003"),
+        email="dev@local",
+        roles=("service_role",),
+        workspace_ids=(),
+    )
+
+
+async def _get_pool(app: FastAPI, settings: AppSettings) -> AsyncConnectionPool:
+    """Retrieve existing connection pool or initialize and open a new one."""
+    pool: AsyncConnectionPool | None = getattr(app.state, "pool", None)
+    if pool is not None:
+        return pool
+    if not settings.database_url:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database pool is not configured",
+        )
+    pool = create_async_pool(settings.database_url)
+    await pool.open()
+    app.state.pool = pool
+    return pool
+
+
+async def _sse_stream(
+    generator: AsyncIterator[dict[str, Any]],
+    logger_context: str,
+) -> AsyncIterator[str]:
+    """Uniform SSE streaming generator with structured error handling."""
+    try:
+        async for item in generator:
+            event_name = item.get("event", "message")
+            data_str = json.dumps(item.get("data", {}))
+            yield f"event: {event_name}\ndata: {data_str}\n\n"
+    except Exception as exc:
+        logger.error(logger_context, error=str(exc))
+        error_payload = json.dumps({"error": f"Internal streaming error: {logger_context}"})
+        yield f"event: error\ndata: {error_payload}\n\n"
+
+
+def _unavailable_stream(message: str) -> AsyncIterator[str]:
+    """Helper for streaming early unavailability errors."""
+    async def _generator() -> AsyncIterator[str]:
+        payload = json.dumps({"status": "abstained", "text": message})
+        yield f"event: error\ndata: {payload}\n\n"
+
+    return _generator()
+
+
 def create_app(
     settings: AppSettings | None = None,
     rag_service: RagService | None = None,
@@ -89,7 +185,6 @@ def create_app(
 ) -> FastAPI:
     resolved_settings = settings or get_settings()
     configure_logging(resolved_settings.log_level, resolved_settings.json_logs)
-    logger = structlog.get_logger(__name__)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
@@ -98,9 +193,54 @@ def create_app(
             environment=resolved_settings.environment,
             service=resolved_settings.service_name,
         )
+
+        owns_pool = False
+        pool_inst: AsyncConnectionPool | None = getattr(application.state, "pool", None)
+        if pool_inst is None and resolved_settings.database_url:
+            pool_inst = create_async_pool(resolved_settings.database_url)
+            await pool_inst.open()
+            application.state.pool = pool_inst
+            owns_pool = True
+        elif pool_inst is not None and hasattr(pool_inst, "open"):
+            if getattr(pool_inst, "_opened", False) is False:
+                with suppress(Exception):
+                    await pool_inst.open()
+
+        # Wire RAG pipeline and agent if not pre-injected
+        current_rag: RagService | None = getattr(application.state, "rag_service", None)
+        if current_rag is None and pool_inst is not None:
+            try:
+                embedder = FastEmbedProvider(model_name=resolved_settings.embedding_model)
+                retriever = HybridRetriever(pool_inst, embedder)
+                reranker = FlashRankReranker()
+                if resolved_settings.groq_api_key:
+                    chat_model = GroqChatModelProvider(
+                        api_key=resolved_settings.groq_api_key,
+                        profiles=resolved_settings.model_profiles(),
+                    )
+                    current_rag = RagService(
+                        retriever=retriever,
+                        model_provider=chat_model,
+                        reranker=reranker,
+                    )
+                    application.state.rag_service = current_rag
+                else:
+                    logger.warning("groq_api_key_not_configured_rag_service_unwired")
+            except Exception as exc:
+                logger.error("failed_to_initialize_rag_pipeline", error=str(exc))
+
+        current_graph: AdaptiveRagGraph | None = getattr(application.state, "agent_graph", None)
+        if current_graph is None and current_rag is not None:
+            application.state.agent_graph = AdaptiveRagGraph(
+                model=current_rag._model,
+                retriever=current_rag._retriever,
+                reranker=current_rag._reranker,
+            )
+
         yield
+
         pool_to_close: AsyncConnectionPool | None = getattr(application.state, "pool", None)
-        if pool_to_close is not None:
+        if pool_to_close is not None and owns_pool:
             await pool_to_close.close()
         logger.info("api_stopped", service=resolved_settings.service_name)
 
@@ -112,13 +252,33 @@ def create_app(
     application.state.settings = resolved_settings
     application.state.rag_service = rag_service
     application.state.pool = pool
-    if agent_graph is None and rag_service is not None:
+    if (
+        agent_graph is None
+        and rag_service is not None
+        and hasattr(rag_service, "_model")
+        and hasattr(rag_service, "_retriever")
+    ):
         agent_graph = AdaptiveRagGraph(
             model=rag_service._model,
             retriever=rag_service._retriever,
-            reranker=rag_service._reranker,
+            reranker=getattr(rag_service, "_reranker", None),
         )
     application.state.agent_graph = agent_graph
+
+    @application.exception_handler(AuthenticationError)
+    async def auth_error_handler(_: Request, exc: AuthenticationError) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={"detail": str(exc)},
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    @application.exception_handler(AuthorizationError)
+    async def forbidden_error_handler(_: Request, exc: AuthorizationError) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"detail": str(exc)},
+        )
 
     @application.get("/", response_class=HTMLResponse)
     async def dashboard() -> HTMLResponse:
@@ -143,7 +303,9 @@ def create_app(
     async def query_endpoint(
         request: QueryRequest,
         response: Response,
+        current_user: Annotated[UserIdentity, Depends(get_current_user)],
     ) -> GroundedAnswer:
+        check_workspace_access(current_user, request.workspace_id)
         service: RagService | None = getattr(application.state, "rag_service", None)
         if service is None:
             response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
@@ -168,44 +330,41 @@ def create_app(
     @application.post("/v1/chat/stream")
     async def chat_stream_endpoint(
         request: QueryRequest,
-        response: Response,
+        current_user: Annotated[UserIdentity, Depends(get_current_user)],
     ) -> StreamingResponse:
+        check_workspace_access(current_user, request.workspace_id)
         service: RagService | None = getattr(application.state, "rag_service", None)
         if service is None:
-
-            async def unavailable_stream() -> AsyncIterator[str]:
-                payload = json.dumps({"status": "abstained", "text": "RAG service is unavailable"})
-                yield f"event: error\ndata: {payload}\n\n"
-
             return StreamingResponse(
-                unavailable_stream(),
+                _unavailable_stream("RAG service is unavailable"),
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 media_type="text/event-stream",
             )
 
-        async def sse_generator() -> AsyncIterator[str]:
-            try:
-                async for item in service.answer_query_stream(request):
-                    event_name = item.get("event", "message")
-                    data_str = json.dumps(item.get("data", {}))
-                    yield f"event: {event_name}\ndata: {data_str}\n\n"
-            except Exception as exc:
-                logger.error("streaming_error", error=str(exc))
-                error_payload = json.dumps({"error": "Internal streaming error"})
-                yield f"event: error\ndata: {error_payload}\n\n"
-
-        return StreamingResponse(sse_generator(), media_type="text/event-stream")
+        return StreamingResponse(
+            _sse_stream(service.answer_query_stream(request), "streaming_error"),
+            media_type="text/event-stream",
+        )
 
     @application.post("/v1/agent/query", response_model=AgentQueryResponse)
     async def agent_query_endpoint(
         request: AgentQueryRequest,
         response: Response,
+        current_user: Annotated[UserIdentity, Depends(get_current_user)],
     ) -> AgentQueryResponse:
+        check_workspace_access(current_user, request.workspace_id)
+        effective_user_id = (
+            request.user_id
+            if request.user_id is not None and "service_role" in current_user.roles
+            else current_user.user_id
+        )
+        thread_id = request.thread_id or f"{request.workspace_id}:{effective_user_id}:{uuid4()}"
+
         agent: AdaptiveRagGraph | None = getattr(application.state, "agent_graph", None)
         if agent is None:
             response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
             return AgentQueryResponse(
-                thread_id=request.thread_id or str(request.user_id),
+                thread_id=thread_id,
                 route="direct",
                 effective_query=request.query,
                 status="abstained",
@@ -216,13 +375,13 @@ def create_app(
             state = await agent.ainvoke(
                 query=request.query,
                 workspace_id=request.workspace_id,
-                user_id=request.user_id,
+                user_id=effective_user_id,
                 knowledge_base_ids=request.knowledge_base_ids,
                 chat_history=request.chat_history,
-                thread_id=request.thread_id,
+                thread_id=thread_id,
             )
             return AgentQueryResponse(
-                thread_id=request.thread_id or f"thread-{request.user_id}",
+                thread_id=thread_id,
                 route=state.route,
                 effective_query=state.effective_query,
                 status=state.status,
@@ -234,7 +393,7 @@ def create_app(
             logger.error("agent_query_failed", error=str(exc))
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return AgentQueryResponse(
-                thread_id=request.thread_id or str(request.user_id),
+                thread_id=thread_id,
                 route="direct",
                 effective_query=request.query,
                 status="error",
@@ -245,42 +404,36 @@ def create_app(
     @application.post("/v1/agent/stream")
     async def agent_stream_endpoint(
         request: AgentQueryRequest,
-        response: Response,
+        current_user: Annotated[UserIdentity, Depends(get_current_user)],
     ) -> StreamingResponse:
+        check_workspace_access(current_user, request.workspace_id)
+        effective_user_id = (
+            request.user_id
+            if request.user_id is not None and "service_role" in current_user.roles
+            else current_user.user_id
+        )
+        thread_id = request.thread_id or f"{request.workspace_id}:{effective_user_id}:{uuid4()}"
+
         agent: AdaptiveRagGraph | None = getattr(application.state, "agent_graph", None)
         if agent is None:
-
-            async def unavailable_stream() -> AsyncIterator[str]:
-                payload = json.dumps(
-                    {"status": "abstained", "text": "Agent service is unavailable"}
-                )
-                yield f"event: error\ndata: {payload}\n\n"
-
             return StreamingResponse(
-                unavailable_stream(),
+                _unavailable_stream("Agent service is unavailable"),
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 media_type="text/event-stream",
             )
 
-        async def sse_generator() -> AsyncIterator[str]:
-            try:
-                async for item in agent.astream(
-                    query=request.query,
-                    workspace_id=request.workspace_id,
-                    user_id=request.user_id,
-                    knowledge_base_ids=request.knowledge_base_ids,
-                    chat_history=request.chat_history,
-                    thread_id=request.thread_id,
-                ):
-                    event_name = item.get("event", "message")
-                    data_str = json.dumps(item.get("data", {}))
-                    yield f"event: {event_name}\ndata: {data_str}\n\n"
-            except Exception as exc:
-                logger.error("agent_streaming_error", error=str(exc))
-                error_payload = json.dumps({"error": "Internal agent streaming error"})
-                yield f"event: error\ndata: {error_payload}\n\n"
-
-        return StreamingResponse(sse_generator(), media_type="text/event-stream")
+        stream_gen = agent.astream(
+            query=request.query,
+            workspace_id=request.workspace_id,
+            user_id=effective_user_id,
+            knowledge_base_ids=request.knowledge_base_ids,
+            chat_history=request.chat_history,
+            thread_id=thread_id,
+        )
+        return StreamingResponse(
+            _sse_stream(stream_gen, "agent_streaming_error"),
+            media_type="text/event-stream",
+        )
 
     @application.post(
         "/v1/documents",
@@ -289,19 +442,10 @@ def create_app(
     )
     async def ingest_document(
         request: IngestionRequest,
-        response: Response,
+        current_user: Annotated[UserIdentity, Depends(get_current_user)],
     ) -> IngestionResponse:
-        pool: AsyncConnectionPool | None = getattr(application.state, "pool", None)
-        if pool is None:
-            if resolved_settings.database_url:
-                pool = create_async_pool(resolved_settings.database_url)
-                application.state.pool = pool
-            else:
-                response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-                raise HTTPException(
-                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                    detail="Database pool is not configured",
-                )
+        check_workspace_access(current_user, request.workspace_id)
+        pool = await _get_pool(application, resolved_settings)
         try:
             result = await create_ingestion_job(
                 pool,
@@ -333,26 +477,29 @@ def create_app(
         file: Annotated[UploadFile, File()],
         workspace_id: Annotated[UUID, Form()],
         knowledge_base_id: Annotated[UUID, Form()],
+        current_user: Annotated[UserIdentity, Depends(get_current_user)],
         title: Annotated[str | None, Form()] = None,
         idempotency_key: Annotated[str | None, Form()] = None,
     ) -> IngestionResponse:
-        pool: AsyncConnectionPool | None = getattr(application.state, "pool", None)
-        if pool is None:
-            if resolved_settings.database_url:
-                pool = create_async_pool(resolved_settings.database_url)
-                application.state.pool = pool
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                    detail="Database pool is not configured",
-                )
+        check_workspace_access(current_user, workspace_id)
+        pool = await _get_pool(application, resolved_settings)
         try:
             raw_bytes = await file.read()
-            parsed = DocumentParser.parse(
+            if len(raw_bytes) > MAX_UPLOAD_BYTES:
+                limit_mb = MAX_UPLOAD_BYTES // (1024 * 1024)
+                raise HTTPException(
+                    status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                    detail=f"File exceeds maximum allowed size ({limit_mb}MB)",
+                )
+
+            file_type = file.content_type or "text/plain"
+            parse_fn = functools.partial(
+                DocumentParser.parse,
                 raw_bytes,
-                file_type=file.content_type or "text/plain",
+                file_type,
                 metadata={"filename": file.filename or "uploaded_file"},
             )
+            parsed = await anyio.to_thread.run_sync(parse_fn)
             doc_title = title or file.filename or "Uploaded Document"
             result = await create_ingestion_job(
                 pool,
@@ -373,6 +520,8 @@ def create_app(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=str(exc),
             ) from exc
+        except HTTPException:
+            raise
         except Exception as exc:
             logger.error("document_upload_failed", error=str(exc))
             raise HTTPException(

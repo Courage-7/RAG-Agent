@@ -35,6 +35,21 @@ class AppSettings(BaseSettings):
     database_url: str = "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
     supabase_url: str = "http://127.0.0.1:54321"
     supabase_publishable_key: SecretStr | None = None
+    supabase_jwt_secret: SecretStr | None = Field(
+        default=None,
+        validation_alias=AliasChoices("SUPABASE_JWT_SECRET", "RAG_SUPABASE_JWT_SECRET"),
+    )
+    auth_enabled: bool = Field(
+        default=False,
+        validation_alias=AliasChoices("AUTH_ENABLED", "RAG_AUTH_ENABLED"),
+    )
+    embedding_model: str = "BAAI/bge-small-en-v1.5"
+
+    @property
+    def is_auth_enforced(self) -> bool:
+        if self.environment in ("production", "staging"):
+            return True
+        return self.auth_enabled
 
     def model_profiles(self) -> dict[str, ModelProfile]:
         return default_groq_profiles(
