@@ -81,10 +81,13 @@ async def process_document_ingestion(payload_data: dict[str, Any]) -> int:
                     update public.ingestion_jobs
                     set status = 'running',
                         current_stage = 'chunking',
+                        attempt_count = attempt_count + 1,
                         started_at = coalesce(started_at, now()),
+                        failed_at = null,
                         updated_at = now()
                     where id = %(job_id)s
-                      and status in ('queued', 'retry_scheduled');
+                      and status in ('queued', 'retry_scheduled')
+                      and attempt_count < max_attempts;
                     """,
                     {"job_id": payload.job_id},
                 )
@@ -125,10 +128,17 @@ async def process_document_ingestion(payload_data: dict[str, Any]) -> int:
                     await cursor.execute(
                         """
                         update public.ingestion_jobs
-                        set status = 'failed',
+                        set status = case
+                                when attempt_count >= max_attempts then 'failed'::public.job_status
+                                else 'retry_scheduled'::public.job_status
+                            end,
                             failure_code = 'processing_error',
                             failure_message = %(failure_msg)s,
-                            failed_at = now(),
+                            failed_at = case
+                                when attempt_count >= max_attempts then now()
+                                else null
+                            end,
+                            available_at = now() + (interval '15 seconds'),
                             updated_at = now()
                         where id = %(job_id)s;
                         """,

@@ -49,6 +49,7 @@ class OutboxDispatcher:
               where dispatched_at is null
                 and available_at <= now()
                 and (claimed_at is null or claimed_at < now() - interval '60 seconds')
+                and attempt_count < max_attempts
               order by id
               limit %(limit)s
               for update skip locked
@@ -116,7 +117,10 @@ class OutboxDispatcher:
         sql = """
             update private.job_dispatch_outbox
             set last_error = %(error)s,
-                available_at = now() + (%(delay)s * interval '1 second'),
+                available_at = case
+                    when attempt_count >= max_attempts then 'infinity'::timestamptz
+                    else now() + (%(delay)s * interval '1 second')
+                end,
                 claimed_at = null,
                 claimed_by = null,
                 updated_at = now()
