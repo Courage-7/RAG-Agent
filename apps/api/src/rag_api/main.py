@@ -170,6 +170,7 @@ async def _sse_stream(
 
 def _unavailable_stream(message: str) -> AsyncIterator[str]:
     """Helper for streaming early unavailability errors."""
+
     async def _generator() -> AsyncIterator[str]:
         payload = json.dumps({"status": "abstained", "text": message})
         yield f"event: error\ndata: {payload}\n\n"
