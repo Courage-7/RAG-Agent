@@ -12,7 +12,6 @@ broker = RedisBroker(url=settings.redis_broker_url, namespace="rag-agent")
 dramatiq.set_broker(broker)
 
 # Actor modules must be imported after the broker is configured.
-from rag_worker.tasks.demo import demo_job  # noqa: E402
 from rag_worker.tasks.ingestion import document_ingestion  # noqa: E402
 
-__all__ = ["broker", "demo_job", "document_ingestion"]
+__all__ = ["broker", "document_ingestion"]

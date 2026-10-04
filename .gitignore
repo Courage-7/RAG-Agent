@@ -15,36 +15,13 @@ venv/
 .env.local
 .env.*.local
 
-# Configuration files with secrets
-config/config.yaml
-
 # Data and storage
-# data/  <- Commented out to include data directory
 /models/
 *.pdf
 *.csv
 *.xls*
 *.doc*
-*.faiss
-*.pkl
 *.bin
-
-# IDE specific
-.vscode/
-.idea/
-*.iml
-*.ipynb_checkpoints
-*.swp
-*.swo
-
-# Logs and databases
-logs/
-*.log
-*.sqlite
-*.db
-
-# Streamlit
-.streamlit/
 
 # Testing
 .coverage
@@ -70,10 +47,6 @@ Desktop.ini
 # Jupyter Server
 .jupyter/
 jupyter_notebook_config.py
-
-# Vector stores
-vector_store/
-*.index
 
 # Required root project metadata; earlier broad patterns would hide these files.
 !.dockerignore

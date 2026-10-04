@@ -1,5 +1,3 @@
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
 from typing import Any
 
 import anyio
@@ -39,13 +37,6 @@ def create_async_pool(
         kwargs={"row_factory": dict_row},
         open=False,
     )
-
-
-@asynccontextmanager
-async def get_connection(pool: AsyncConnectionPool) -> AsyncIterator[AsyncConnection[Any]]:
-    """Yield an active connection from the pool with automatic release."""
-    async with pool.connection() as conn:
-        yield conn
 
 
 async def check_database_health(database_url: str, *, timeout_seconds: float = 1.0) -> bool:
