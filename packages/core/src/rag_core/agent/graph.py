@@ -99,7 +99,7 @@ class AdaptiveRagGraph:
             )
 
         lower_q = effective.lower()
-        if lower_q.startswith(("hi", "hello", "hey", "who are you")):
+        if bool(re.match(r"^(hi|hello|hey|who are you)\b", lower_q)):
             route: Literal["direct", "retrieve", "web_search"] = "direct"
         elif any(w in lower_q for w in ("latest news", "current stock", "today's weather")):
             route = "web_search"
@@ -110,8 +110,9 @@ class AdaptiveRagGraph:
 
     async def _retrieve_documents(self, state: AgentState) -> dict[str, Any]:
         fetch_k = 16 if self._reranker is not None else 6
+        effective_text = state.effective_query or state.query
         query = RetrievalQuery(
-            text=state.effective_query or state.query,
+            text=effective_text,
             workspace_id=state.workspace_id,
             user_id=state.user_id,
             knowledge_base_ids=state.knowledge_base_ids,
@@ -122,7 +123,7 @@ class AdaptiveRagGraph:
 
         if self._reranker is not None and chunks:
             reranked = await self._reranker.rerank(
-                state.query,
+                effective_text,
                 chunks,
                 top_k=6,
             )

@@ -627,8 +627,8 @@
             card.className = 'p-2.5 rounded bg-surface-800 border border-surface-700 text-zinc-300';
             card.innerHTML = `
               <div class="flex items-center justify-between text-[11px] font-mono text-brand-400 mb-1">
-                <span>[${c.ordinal}] Source Chunk</span>
-                <span class="text-zinc-500 truncate w-24">${c.chunk_id}</span>
+                <span>[${escapeHtml(String(c.ordinal))}] Source Chunk</span>
+                <span class="text-zinc-500 truncate w-24">${escapeHtml(String(c.chunk_id))}</span>
               </div>
               <p class="text-zinc-400 text-[11px] truncate">${escapeHtml(c.source_label || 'Knowledge Excerpt')}</p>
             `;
@@ -692,8 +692,23 @@
               logDebug(`RAG SSE [${event}]: ${JSON.stringify(data).substring(0, 80)}...`);
 
               if (event === 'token') {
-                answerContent.innerText += data.token || '';
-              } else if (event === 'citations' && data.citations) {
+                answerContent.innerText += data.text || data.token || data.delta || '';
+              } else if (event === 'evidence' && data.items) {
+                citationsContainer.classList.remove('hidden');
+                citationsList.innerHTML = '';
+                data.items.forEach(c => {
+                  const card = document.createElement('div');
+                  card.className = 'p-2.5 rounded bg-surface-800 border border-surface-700 text-zinc-300';
+                  card.innerHTML = `
+                    <div class="flex items-center justify-between text-[11px] font-mono text-brand-400 mb-1">
+                      <span>[${escapeHtml(String(c.ordinal))}] Source Chunk</span>
+                      <span class="text-zinc-500 truncate w-24">${escapeHtml(String(c.chunk_id))}</span>
+                    </div>
+                    <p class="text-zinc-400 text-[11px] truncate">${escapeHtml(c.source_label || 'Knowledge Excerpt')}</p>
+                  `;
+                  citationsList.appendChild(card);
+                });
+              } else if ((event === 'done' || event === 'citations') && data.citations && data.citations.length) {
                 citationsContainer.classList.remove('hidden');
                 citationsList.innerHTML = '';
                 data.citations.forEach(c => {
@@ -701,10 +716,10 @@
                   card.className = 'p-2.5 rounded bg-surface-800 border border-surface-700 text-zinc-300';
                   card.innerHTML = `
                     <div class="flex items-center justify-between text-[11px] font-mono text-brand-400 mb-1">
-                      <span>[${c.ordinal}] Source Passage</span>
-                      <span class="text-zinc-500 truncate w-24">${c.chunk_id}</span>
+                      <span>[${escapeHtml(String(c.ordinal))}] Verified Source</span>
+                      <span class="text-zinc-500 truncate w-24">${escapeHtml(String(c.chunk_id))}</span>
                     </div>
-                    <p class="text-zinc-400 text-[11px] truncate">${escapeHtml(c.text || '')}</p>
+                    <p class="text-zinc-400 text-[11px] truncate">${escapeHtml(c.source_label || c.text || 'Knowledge Excerpt')}</p>
                   `;
                   citationsList.appendChild(card);
                 });
